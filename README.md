@@ -1,6 +1,7 @@
 # Requirements:
 
 * Python 3;
+* Requests;
 * BeautifulSoup4;
 * PyYAML
 
@@ -30,7 +31,7 @@ mod:RegisterEnableMob(
 	2 -- NPC #2
 )
 
-...
+-- ...
 
 if L then
 	L.first = "NPC #1"
