@@ -1,0 +1,9 @@
+[profile.release]
+lto = true
+
+[workspace]
+members = [
+    "generate_yaml_from_dir",
+    "generate_yaml_from_one",
+    "localize_npc_names",
+]
