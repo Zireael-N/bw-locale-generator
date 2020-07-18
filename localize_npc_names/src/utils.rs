@@ -212,9 +212,15 @@ pub(crate) fn write_to_dir(
                 tmp_file.flush().map_err(|e| (tmp_path.clone(), e))?;
 
                 drop(to_file);
-                if let Err(e) = fs::rename(&tmp_path, &to_path) {
+
+                // Fails if files belong to different filesystems
+                if let Err(_) = fs::rename(&tmp_path, &to_path) {
+                    let copy_result = fs::copy(&tmp_path, &to_path);
                     fs::remove_file(&tmp_path).map_err(|e| (tmp_path, e))?;
-                    return Err((to_path, e));
+
+                    if let Err(e) = copy_result {
+                        return Err((to_path, e));
+                    }
                 }
             }
         }
