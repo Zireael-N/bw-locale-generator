@@ -106,14 +106,18 @@ impl Localizer {
                 while let Ok(msg) = rx.recv() {
                     match msg {
                         Err(ProcessingError::IoError((path, e))) => {
-                            let _ =
-                                write!(stderr, "I/O error: {} ({})\n", e, path.to_string_lossy(),);
+                            let _ = write!(
+                                stderr,
+                                "\rI/O error: {} ({})\n",
+                                e,
+                                path.to_string_lossy(),
+                            );
                         }
                         Err(ProcessingError::DataError((language, mob_name, e))) => {
                             let _ = write!(
                                 stderr,
-                                "Failed to collect data for {} ({}), error: {}\n",
-                                language, mob_name, e
+                                "\rFailed to collect data for \"{}\" ({}), error: {}\n",
+                                mob_name, language, e
                             );
                             processed += 1;
                         }
