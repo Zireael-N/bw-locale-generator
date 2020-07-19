@@ -261,22 +261,28 @@ fn main() -> Result<(), Error> {
 
             let parse_result = parse(input);
 
-            let output_file = match parse_result.module_name {
-                Some(ref v) => {
-                    match File::create(output_path.with_file_name(format!("{}.yaml", v))) {
-                        Ok(file) => Ok(file),
-                        Err(_) => File::create(&output_path)
-                            .map_err(|e| (input_path.clone(), From::from(e))),
+            if parse_result.var_to_id_map.is_empty() {
+                Ok((input_path, parse_result))
+            } else {
+                let output_file = match parse_result.module_name {
+                    Some(ref v) => {
+                        match File::create(output_path.with_file_name(format!("{}.yaml", v))) {
+                            Ok(file) => Ok(file),
+                            Err(_) => File::create(&output_path)
+                                .map_err(|e| (input_path.clone(), From::from(e))),
+                        }
                     }
-                }
-                None => File::create(&output_path).map_err(|e| (input_path.clone(), From::from(e))),
-            };
+                    None => {
+                        File::create(&output_path).map_err(|e| (input_path.clone(), From::from(e)))
+                    }
+                };
 
-            let output_file = BufWriter::new(output_file?);
+                let output_file = BufWriter::new(output_file?);
 
-            write_to_file(&parse_result, output_file)
-                .map_err(|e| (input_path.clone(), From::from(e)))
-                .map(|_| (input_path, parse_result))
+                write_to_file(&parse_result, output_file)
+                    .map_err(|e| (input_path.clone(), From::from(e)))
+                    .map(|_| (input_path, parse_result))
+            }
         })
         .collect();
 
