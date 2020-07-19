@@ -17,6 +17,7 @@ static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 struct ParseResult {
+    module_name: Option<String>,
     var_to_id_map: Map<String, i64>,
     missing_vars: Vec<(String, String)>,
     missing_ids: Vec<(i64, String)>,
@@ -40,15 +41,20 @@ enum ParseState {
 }
 
 fn parse(input: BufReader<File>) -> ParseResult {
+    static IDS_START: &'static str = "mod:RegisterEnableMob(";
+    static VARS_START: &'static str = "if L then";
+
     static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+)""#).unwrap());
-    static IDS_START_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"^mod:RegisterEnableMob\("#).unwrap());
-    static VARS_START_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^if L then"#).unwrap());
+        Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+?)""#).unwrap());
+    static MODULE_DECL_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r#"^\s*local\s*mod(?:,\s*CL)?\s*=\s*BigWigs:NewBoss\("(.*?)(?: Trash)""#)
+            .unwrap()
+    });
 
     let mut ids_map = Map::with_capacity(16);
     let mut vars_map = Map::with_capacity(16);
+    let mut module_name = None;
 
     let mut state = ParseState::Neither;
     let mut parsed_blocks = 0;
@@ -68,7 +74,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
                 None => {
                     if line.find(')').is_some() {
                         state = ParseState::Neither;
-                        if parsed_blocks == 1 {
+                        if parsed_blocks == 2 {
                             break;
                         }
                         parsed_blocks += 1;
@@ -85,7 +91,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
                 None => {
                     if line == "end" {
                         state = ParseState::Neither;
-                        if parsed_blocks == 1 {
+                        if parsed_blocks == 2 {
                             break;
                         }
                         parsed_blocks += 1;
@@ -93,10 +99,15 @@ fn parse(input: BufReader<File>) -> ParseResult {
                 }
             },
             ParseState::Neither => {
-                if IDS_START_REGEX.find(&line).is_some() {
+                if line.starts_with(IDS_START) {
                     state = ParseState::ParsingIds;
-                } else if VARS_START_REGEX.find(&line).is_some() {
+                } else if line.starts_with(VARS_START) {
                     state = ParseState::ParsingVars;
+                } else {
+                    if let Some(caps) = MODULE_DECL_REGEX.captures(&line) {
+                        module_name = caps.get(1).map(|v| v.as_str().into());
+                        parsed_blocks += 1;
+                    }
                 }
             }
         }
@@ -119,6 +130,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
         .collect();
 
     ParseResult {
+        module_name,
         var_to_id_map,
         missing_vars,
         missing_ids,
@@ -195,7 +207,7 @@ fn main() -> Result<(), Error> {
         let program_name = args.next().unwrap();
 
         match (args.next(), args.next()) {
-            (Some(input_dir), Some(output_dir)) => (input_dir, output_dir),
+            (Some(input_dir), Some(output_dir)) => (input_dir, PathBuf::from(output_dir)),
             _ => {
                 eprintln!(
                     "Usage: {} input_directory output_directory",
@@ -208,55 +220,63 @@ fn main() -> Result<(), Error> {
 
     let file_paths = WalkDir::new(&input_dir)
         .into_iter()
-        .map(|entry| match entry {
+        .filter_map(|entry| match entry {
             Ok(entry) => {
                 let path = entry.into_path();
-                let is_trash_lua = path.ends_with("Trash.lua");
-                Ok((path, is_trash_lua))
+                if path.ends_with("Trash.lua") {
+                    Some(Ok(path))
+                } else {
+                    None
+                }
             }
-            Err(err) => Err(err),
+            Err(err) => Some(Err(err)),
         })
         .collect::<Result<Vec<_>, _>>()?;
 
     let results: Vec<_> = file_paths
-        .par_iter()
-        .filter(|(_, is_trash_lua)| *is_trash_lua)
-        .map(|(input_path, _)| -> Result<_, (_, Error)> {
-            let new_path = {
+        .into_par_iter()
+        .map(|input_path| -> Result<_, (_, Error)> {
+            let output_path = {
                 input_path
                     .strip_prefix(&input_dir)
                     .map_err(|e| (input_path.clone(), From::from(e)))
-                    .and_then(|input| {
-                        input.parent().ok_or_else(|| {
+                    .and_then(|path| {
+                        path.parent().ok_or_else(|| {
                             (
                                 input_path.clone(),
-                                "Failed to get the parent directory".into(),
+                                "Failed to get a parent directory".into(),
                             )
                         })
                     })
-                    .map(|input| {
-                        let mut t = input.as_os_str().to_os_string();
-                        t.push(".yaml");
-                        PathBuf::from(&output_dir).join(t)
-                    })
+                    .map(|path| output_dir.join(path).with_extension("yaml"))
             }?;
 
-            let input = BufReader::new(
-                File::open(input_path).map_err(|e| (input_path.clone(), From::from(e)))?,
-            );
-
-            if let Some(path) = new_path.parent() {
-                fs::create_dir_all(path).map_err(|e| (input_path.clone(), From::from(e)))?
+            if let Some(parent) = output_path.parent() {
+                fs::create_dir_all(&parent).map_err(|e| (input_path.clone(), From::from(e)))?;
             }
 
-            let output = BufWriter::new(
-                File::create(new_path).map_err(|e| (input_path.clone(), From::from(e)))?,
+            let input = BufReader::new(
+                File::open(&input_path).map_err(|e| (input_path.clone(), From::from(e)))?,
             );
 
             let parse_result = parse(input);
-            write_to_file(&parse_result, output)
+
+            let output_file = match parse_result.module_name {
+                Some(ref v) => {
+                    match File::create(output_path.with_file_name(format!("{}.yaml", v))) {
+                        Ok(file) => Ok(file),
+                        Err(_) => File::create(&output_path)
+                            .map_err(|e| (input_path.clone(), From::from(e))),
+                    }
+                }
+                None => File::create(&output_path).map_err(|e| (input_path.clone(), From::from(e))),
+            };
+
+            let output_file = BufWriter::new(output_file?);
+
+            write_to_file(&parse_result, output_file)
                 .map_err(|e| (input_path.clone(), From::from(e)))
-                .map(|_| (input_path.clone(), parse_result))
+                .map(|_| (input_path, parse_result))
         })
         .collect();
 
