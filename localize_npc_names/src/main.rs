@@ -1,9 +1,9 @@
 use indexmap::IndexMap as Map;
-use regex::Regex;
 use std::{
     env,
     fs::{self, File},
     io::BufReader,
+    path::PathBuf,
 };
 
 use localize_npc_names::{Error, Localizer};
@@ -23,9 +23,11 @@ fn main() -> Result<(), Error> {
             args.next()
                 .map(|value| value.to_string_lossy().into_owned()),
         ) {
-            (Some(yaml_path), Some(output_dir), module_name) => {
-                (yaml_path, output_dir, module_name)
-            }
+            (Some(yaml_path), Some(output_dir), module_name) => (
+                PathBuf::from(yaml_path),
+                PathBuf::from(output_dir),
+                module_name,
+            ),
             (_, _, _) => {
                 eprintln!(
                     "Usage: {} <YAML FILE> <OUTPUT DIR> [MODULE NAME]",
@@ -44,21 +46,7 @@ fn main() -> Result<(), Error> {
     };
     let module_name = match module_name {
         Some(module_name) => module_name,
-        None => {
-            #[cfg(windows)]
-            let regex = Regex::new(r#"(?:^.*\\)?(.*?)(?:\.ya?ml)?$"#).unwrap();
-            #[cfg(not(windows))]
-            let regex = Regex::new(r#"(?:^.*/)?(.*?)(?:\.ya?ml)?$"#).unwrap();
-
-            let yaml_path = yaml_path.to_string_lossy();
-            let instance_name = regex
-                .captures(&yaml_path)
-                .and_then(|v| v.get(1))
-                .map(|v| v.as_str())
-                .unwrap();
-
-            format!("{} Trash", instance_name)
-        }
+        None => format!("{} Trash", yaml_path.file_stem().unwrap().to_string_lossy()),
     };
 
     fs::create_dir_all(&output_dir)?;

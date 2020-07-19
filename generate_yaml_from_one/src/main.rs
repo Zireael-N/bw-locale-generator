@@ -37,12 +37,12 @@ enum ParseState {
 }
 
 fn parse(file: BufReader<File>) -> ParseResult {
+    static IDS_START: &'static str = "mod:RegisterEnableMob(";
+    static VARS_START: &'static str = "if L then";
+
     static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+)""#).unwrap());
-    static IDS_START_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"^mod:RegisterEnableMob\("#).unwrap());
-    static VARS_START_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^if L then"#).unwrap());
 
     let mut ids_map = Map::with_capacity(16);
     let mut vars_map = Map::with_capacity(16);
@@ -90,9 +90,9 @@ fn parse(file: BufReader<File>) -> ParseResult {
                 }
             },
             ParseState::Neither => {
-                if IDS_START_REGEX.find(&line).is_some() {
+                if line.starts_with(IDS_START) {
                     state = ParseState::ParsingIds;
-                } else if VARS_START_REGEX.find(&line).is_some() {
+                } else if line.starts_with(VARS_START) {
                     state = ParseState::ParsingVars;
                 }
             }
