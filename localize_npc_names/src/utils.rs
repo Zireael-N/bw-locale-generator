@@ -76,7 +76,7 @@ pub(crate) fn discard_existing(
 fn replace<'a, 'b>(
     src: &'a str,
     header: &'b str,
-    mut values: Map<String, String>,
+    mut values: Map<String, (String, bool)>,
 ) -> Option<Cow<'a, str>> {
     let mut state = State::Initial;
     let mut scratch: Vec<u8> = Vec::new();
@@ -104,9 +104,15 @@ fn replace<'a, 'b>(
                         let offset = offset(src, line);
 
                         scratch.extend_from_slice(&bytes[copy_from..offset]);
-                        for (name, value) in &values {
+                        for (name, (translation, is_valid)) in &values {
                             scratch.extend_from_slice(
-                                format!("\tL.{} = \"{}\"", name, value).as_bytes(),
+                                format!(
+                                    "{}L.{} = \"{}\"",
+                                    if *is_valid { "\t" } else { "\t -- " },
+                                    name,
+                                    translation
+                                )
+                                .as_bytes(),
                             );
                             scratch.extend_from_slice(LINE_ENDING);
                         }
@@ -117,15 +123,17 @@ fn replace<'a, 'b>(
                 } else if let Some(caps) = LOCALE_ASSIGNMENT_REGEX.captures(line) {
                     let name = caps.get(2).unwrap().as_str();
 
-                    if let Some(value) = values.remove(name) {
+                    if let Some((translation, is_valid)) = values.remove(name) {
                         let is_comment = caps.get(1).is_some();
                         let leftover = caps.get(4).unwrap().as_str();
-                        if is_comment || caps.get(3).unwrap().as_str() != value {
+                        if is_valid && (is_comment || caps.get(3).unwrap().as_str() != translation)
+                        {
                             let offset = offset(src, line);
 
                             scratch.extend_from_slice(&bytes[copy_from..offset]);
                             scratch.extend_from_slice(
-                                format!("\tL.{} = \"{}\"{}", name, value, leftover).as_bytes(),
+                                format!("\tL.{} = \"{}\"{}", name, translation, leftover)
+                                    .as_bytes(),
                             );
                             copy_from = offset + line.len();
                         }
@@ -166,8 +174,16 @@ fn replace<'a, 'b>(
             scratch.extend_from_slice(b"if L then");
             scratch.extend_from_slice(LINE_ENDING);
 
-            for (name, value) in values {
-                scratch.extend_from_slice(format!("\tL.{} = \"{}\"", name, value).as_bytes());
+            for (name, (translation, is_valid)) in values {
+                scratch.extend_from_slice(
+                    format!(
+                        "{}L.{} = \"{}\"",
+                        if is_valid { "\t" } else { "\t -- " },
+                        name,
+                        translation
+                    )
+                    .as_bytes(),
+                );
                 scratch.extend_from_slice(LINE_ENDING);
             }
             scratch.extend_from_slice(b"end");
@@ -181,7 +197,7 @@ pub(crate) fn write_to_dir(
     output_dir: &Path,
     language_code: &str,
     header: &str,
-    values: Map<String, String>,
+    values: Map<String, (String, bool)>,
 ) -> Result<(), (PathBuf, io::Error)> {
     let to_path = output_dir.join(format!("{}.lua", language_code));
     match File::open(&to_path) {
@@ -251,9 +267,17 @@ pub(crate) fn write_to_dir(
                     .write_all(LINE_ENDING)
                     .map_err(|e| (to_path.clone(), e))?;
 
-                for (name, translation) in values {
+                for (name, (translation, is_valid)) in values {
                     to_file
-                        .write_all(format!("\tL.{} = \"{}\"", name, translation).as_bytes())
+                        .write_all(
+                            format!(
+                                "{}L.{} = \"{}\"",
+                                if is_valid { "\t" } else { "\t -- " },
+                                name,
+                                translation
+                            )
+                            .as_bytes(),
+                        )
                         .map_err(|e| (to_path.clone(), e))?;
                     to_file
                         .write_all(LINE_ENDING)

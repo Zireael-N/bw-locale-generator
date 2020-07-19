@@ -180,7 +180,13 @@ impl Localizer {
                                 match result {
                                     Ok(translation) => {
                                         let _ = tx.send(Ok(()));
-                                        Some((name, translation))
+                                        let (translation, is_valid) = match translation.as_bytes() {
+                                            [b'[', rest @ .., b']'] => {
+                                                (String::from_utf8(rest.to_vec()).unwrap(), false)
+                                            }
+                                            _ => (translation, true),
+                                        };
+                                        Some((name, (translation, is_valid)))
                                     }
                                     Err(e) => {
                                         let _ = tx
