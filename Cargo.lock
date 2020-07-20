@@ -397,6 +397,7 @@ dependencies = [
  "select",
  "serde",
  "serde_yaml",
+ "winapi-util",
 ]
 
 [[package]]

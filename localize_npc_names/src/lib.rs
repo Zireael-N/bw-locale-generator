@@ -5,7 +5,8 @@ use isahc::prelude::*;
 use rayon::prelude::*;
 use select::{document::Document, predicate::Class};
 use std::{
-    fs::File,
+    env,
+    fs::{self, File},
     io::{BufReader, Write},
     path::{Path, PathBuf},
     thread,
@@ -91,6 +92,44 @@ impl Localizer {
             .collect()
     }
 
+    #[cfg(unix)]
+    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+        use std::os::unix::fs::MetadataExt;
+
+        let os_tmp = env::temp_dir();
+        match (
+            fs::metadata(output_dir).map(|v| v.dev()),
+            fs::metadata(&os_tmp).map(|v| v.dev()),
+        ) {
+            (Ok(num1), Ok(num2)) if num1 == num2 => os_tmp,
+            _ => output_dir.to_path_buf(),
+        }
+    }
+
+    #[cfg(windows)]
+    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+        use winapi_util::{file, Handle};
+
+        let os_tmp = env::temp_dir();
+        let serial_num = |path: &Path| {
+            Handle::from_path_any(path)
+                .ok()
+                .map(|h| file::information(h))
+                .map(|v| v.volume_serial_number())
+        };
+
+        match (serial_num(output_dir), serial_num(&os_tmp)) {
+            (Some(num1), Some(num2)) if num1 == num2 => os_tmp,
+            _ => output_dir.to_path_buf(),
+        }
+    }
+
+    #[cfg(not(any(unix, windows)))]
+    #[inline(always)]
+    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+        output_dir.to_path_buf()
+    }
+
     fn process_languages(self) {
         let total = self.data.iter().fold(0, |acc, el| acc + el.ids_map.len());
 
@@ -131,6 +170,7 @@ impl Localizer {
             });
 
             let output_dir = self.output_dir;
+            let tmp_dir = Self::get_tmp_dir(&output_dir);
             self.data.into_par_iter().for_each({
                 |language| {
                     let client = HttpClient::builder()
@@ -198,9 +238,13 @@ impl Localizer {
                         })
                         .collect();
 
-                    if let Err(e) =
-                        utils::write_to_dir(&output_dir, language.code, &language.header, map)
-                    {
+                    if let Err(e) = utils::write_to_dir(
+                        &output_dir,
+                        &tmp_dir,
+                        language.code,
+                        &language.header,
+                        map,
+                    ) {
                         let _ = tx.send(Err(ProcessingError::IoError(e)));
                     }
                 }

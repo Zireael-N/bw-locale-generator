@@ -15,5 +15,8 @@ select = "0.5"
 serde = "1"
 serde_yaml = "0.8"
 
+[target.'cfg(windows)'.dependencies.winapi-util]
+version = "0.1"
+
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.jemallocator]
 version = "0.3.0"

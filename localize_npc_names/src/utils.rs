@@ -4,7 +4,6 @@ use regex::Regex;
 use crate::Map;
 use std::{
     borrow::Cow,
-    env,
     fs::{self, File},
     io::{self, BufRead, BufReader, BufWriter, ErrorKind, Read, Write},
     path::{Path, PathBuf},
@@ -195,6 +194,7 @@ fn replace<'a, 'b>(
 
 pub(crate) fn write_to_dir(
     output_dir: &Path,
+    tmp_dir: &Path,
     language_code: &str,
     header: &str,
     values: Map<String, (String, bool)>,
@@ -220,7 +220,7 @@ pub(crate) fn write_to_dir(
 
                 // Renaming a file is an atomic operation, writing to it is not.
                 // Create a temporary file and then rename it to prevent leaving an existing file in a bad state.
-                let tmp_path = env::temp_dir().join(format!("{}-{}.lua", language_code, unix_ts));
+                let tmp_path = tmp_dir.join(format!("{}-{}.lua.tmp", language_code, unix_ts));
                 let mut tmp_file = File::create(&tmp_path).map_err(|e| (tmp_path.clone(), e))?;
                 tmp_file
                     .write_all(replaced.as_bytes())
@@ -230,7 +230,7 @@ pub(crate) fn write_to_dir(
                 drop(to_file);
 
                 // Fails if files belong to different filesystems
-                if let Err(_) = fs::rename(&tmp_path, &to_path) {
+                if fs::rename(&tmp_path, &to_path).is_err() {
                     let copy_result = fs::copy(&tmp_path, &to_path);
                     fs::remove_file(&tmp_path).map_err(|e| (tmp_path, e))?;
 
