@@ -6,7 +6,7 @@ use rayon::prelude::*;
 use select::{document::Document, predicate::Class};
 use std::{
     env,
-    fs::{self, File},
+    fs::File,
     io::{BufReader, Write},
     path::{Path, PathBuf},
     thread,
@@ -94,6 +94,7 @@ impl Localizer {
 
     #[cfg(unix)]
     fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+        use std::fs;
         use std::os::unix::fs::MetadataExt;
 
         let os_tmp = env::temp_dir();
@@ -113,13 +114,12 @@ impl Localizer {
         let os_tmp = env::temp_dir();
         let serial_num = |path: &Path| {
             Handle::from_path_any(path)
-                .ok()
-                .map(|h| file::information(h))
+                .and_then(|h| file::information(h))
                 .map(|v| v.volume_serial_number())
         };
 
         match (serial_num(output_dir), serial_num(&os_tmp)) {
-            (Some(num1), Some(num2)) if num1 == num2 => os_tmp,
+            (Ok(num1), Ok(num2)) if num1 == num2 => os_tmp,
             _ => output_dir.to_path_buf(),
         }
     }
