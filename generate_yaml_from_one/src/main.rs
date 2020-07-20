@@ -37,8 +37,8 @@ enum ParseState {
 }
 
 fn parse(file: BufReader<File>) -> ParseResult {
-    static IDS_START: &'static str = "mod:RegisterEnableMob(";
-    static VARS_START: &'static str = "if L then";
+    static IDS_START: &str = "mod:RegisterEnableMob(";
+    static VARS_START: &str = "if L then";
 
     static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
@@ -130,20 +130,20 @@ fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
     let mut stderr = stderr.lock();
 
     for (variable, id) in parse_result.var_to_id_map.iter() {
-        write!(stdout, "{}: {}\n", variable, id)?;
+        writeln!(stdout, "{}: {}", variable, id)?;
     }
 
     if !parse_result.missing_vars.is_empty() {
-        stderr.write(b"\nMissing variables:\n")?;
+        stderr.write_all(b"\nMissing variables:\n")?;
         for (variable, value) in parse_result.missing_vars.iter() {
-            write!(stderr, "{} (\"{}\")\n", variable, value)?;
+            writeln!(stderr, "{} (\"{}\")", variable, value)?;
         }
     }
 
     if !parse_result.missing_ids.is_empty() {
-        stderr.write(b"\nMissing IDs:\n")?;
+        stderr.write_all(b"\nMissing IDs:\n")?;
         for (id, comment) in parse_result.missing_ids.iter() {
-            write!(stderr, "{} (\"{}\")\n", id, comment)?;
+            writeln!(stderr, "{} (\"{}\")", id, comment)?;
         }
     }
 

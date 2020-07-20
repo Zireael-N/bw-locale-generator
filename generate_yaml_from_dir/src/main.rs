@@ -41,8 +41,8 @@ enum ParseState {
 }
 
 fn parse(input: BufReader<File>) -> ParseResult {
-    static IDS_START: &'static str = "mod:RegisterEnableMob(";
-    static VARS_START: &'static str = "if L then";
+    static IDS_START: &str = "mod:RegisterEnableMob(";
+    static VARS_START: &str = "if L then";
 
     static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
@@ -103,11 +103,9 @@ fn parse(input: BufReader<File>) -> ParseResult {
                     state = ParseState::ParsingIds;
                 } else if line.starts_with(VARS_START) {
                     state = ParseState::ParsingVars;
-                } else {
-                    if let Some(caps) = MODULE_DECL_REGEX.captures(&line) {
-                        module_name = caps.get(1).map(|v| v.as_str().into());
-                        parsed_blocks += 1;
-                    }
+                } else if let Some(caps) = MODULE_DECL_REGEX.captures(&line) {
+                    module_name = caps.get(1).map(|v| v.as_str().into());
+                    parsed_blocks += 1;
                 }
             }
         }
@@ -139,7 +137,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
     for (variable, id) in parse_result.var_to_id_map.iter() {
-        write!(output, "{}: {}\n", variable, id)?;
+        output.write_all(format!("{}: {}\n", variable, id).as_bytes())?;
     }
 
     output.flush()
@@ -168,14 +166,14 @@ fn print_errors(
                     if vars_missing {
                         stderr.write_all(b"\nMissing variables:\n")?;
                         for (variable, value) in parse_result.missing_vars.iter() {
-                            write!(stderr, "{} (\"{}\")\n", variable, value)?;
+                            writeln!(stderr, "{} (\"{}\")", variable, value)?;
                         }
                     }
 
                     if ids_missing {
                         stderr.write_all(b"\nMissing IDs:\n")?;
                         for (id, comment) in parse_result.missing_ids.iter() {
-                            write!(stderr, "{} (\"{}\")\n", id, comment)?;
+                            writeln!(stderr, "{} (\"{}\")", id, comment)?;
                         }
                     }
 
@@ -186,9 +184,9 @@ fn print_errors(
                 if dirty {
                     stderr.write_all(b"\n==========\n\n")?;
                 }
-                write!(
+                writeln!(
                     stderr,
-                    "Error while working on {}: {:?}\n",
+                    "Error while working on {}: {:?}",
                     path.display(),
                     err
                 )?;
@@ -297,9 +295,9 @@ fn main() -> Result<(), Error> {
                 if dirty {
                     stderr.write_all(b"\n==========\n\n")?;
                 }
-                write!(
+                writeln!(
                     stderr,
-                    "Error while working on {}: {:?}\n",
+                    "Error while working on {}: {:?}",
                     path.display(),
                     error
                 )?;

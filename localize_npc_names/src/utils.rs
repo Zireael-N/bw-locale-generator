@@ -12,9 +12,9 @@ use std::{
 };
 
 #[cfg(windows)]
-const LINE_ENDING: &'static [u8] = b"\r\n";
+const LINE_ENDING: &[u8] = b"\r\n";
 #[cfg(not(windows))]
-const LINE_ENDING: &'static [u8] = b"\n";
+const LINE_ENDING: &[u8] = b"\n";
 
 enum State {
     Initial,
