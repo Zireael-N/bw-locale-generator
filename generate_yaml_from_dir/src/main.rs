@@ -137,7 +137,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
     for (variable, id) in parse_result.var_to_id_map.iter() {
-        output.write_all(format!("{}: {}\n", variable, id).as_bytes())?;
+        writeln!(output, "{}: {}", variable, id)?;
     }
 
     output.flush()

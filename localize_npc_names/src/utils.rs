@@ -268,17 +268,14 @@ pub(crate) fn write_to_dir(
                     .map_err(|e| (to_path.clone(), e))?;
 
                 for (name, (translation, is_valid)) in values {
-                    to_file
-                        .write_all(
-                            format!(
-                                "{}L.{} = \"{}\"",
-                                if is_valid { "\t" } else { "\t -- " },
-                                name,
-                                translation
-                            )
-                            .as_bytes(),
-                        )
-                        .map_err(|e| (to_path.clone(), e))?;
+                    write!(
+                        to_file,
+                        "{}L.{} = \"{}\"",
+                        if is_valid { "\t" } else { "\t -- " },
+                        name,
+                        translation
+                    )
+                    .map_err(|e| (to_path.clone(), e))?;
                     to_file
                         .write_all(LINE_ENDING)
                         .map_err(|e| (to_path.clone(), e))?;
