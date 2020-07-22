@@ -107,7 +107,7 @@ fn replace<'a, 'b>(
                             scratch.extend_from_slice(
                                 format!(
                                     "{}L.{} = \"{}\"",
-                                    if *is_valid { "\t" } else { "\t -- " },
+                                    if *is_valid { "\t" } else { "\t-- " },
                                     name,
                                     translation
                                 )
@@ -177,7 +177,7 @@ fn replace<'a, 'b>(
                 scratch.extend_from_slice(
                     format!(
                         "{}L.{} = \"{}\"",
-                        if is_valid { "\t" } else { "\t -- " },
+                        if is_valid { "\t" } else { "\t-- " },
                         name,
                         translation
                     )
@@ -271,7 +271,7 @@ pub(crate) fn write_to_dir(
                     write!(
                         to_file,
                         "{}L.{} = \"{}\"",
-                        if is_valid { "\t" } else { "\t -- " },
+                        if is_valid { "\t" } else { "\t-- " },
                         name,
                         translation
                     )
