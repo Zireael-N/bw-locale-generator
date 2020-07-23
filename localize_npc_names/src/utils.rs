@@ -36,9 +36,8 @@ pub(crate) fn discard_existing(
 ) -> Result<(), io::Error> {
     let mut state = State::Initial;
 
-    for line in file.lines() {
-        let line = line?;
-
+    let mut line = String::new();
+    while file.read_line(&mut line)? > 0 {
         match state {
             State::Initial => {
                 if line.trim().contains(header) {
@@ -67,6 +66,7 @@ pub(crate) fn discard_existing(
             }
             _ => (),
         }
+        line.clear();
     }
 
     Ok(())

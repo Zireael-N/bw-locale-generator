@@ -218,7 +218,7 @@ dependencies = [
 
 [[package]]
 name = "generate_yaml_from_dir"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "indexmap",
  "jemallocator",
@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "generate_yaml_from_one"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "indexmap",
  "jemallocator",
@@ -385,7 +385,7 @@ checksum = "8dd5a6d5999d9907cda8ed67bbd137d3af8085216c2ac62de5be860bd41f304a"
 
 [[package]]
 name = "localize_npc_names"
-version = "0.1.1"
+version = "0.1.4"
 dependencies = [
  "crossbeam-channel",
  "indexmap",

@@ -40,11 +40,12 @@ enum ParseState {
     Neither,
 }
 
-fn parse(input: BufReader<File>) -> ParseResult {
+fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
     static IDS_START: &str = "mod:RegisterEnableMob(";
     static VARS_START: &str = "if L then";
 
-    static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
+    static ID_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+?)\n$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+?)""#).unwrap());
     static MODULE_DECL_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -59,7 +60,8 @@ fn parse(input: BufReader<File>) -> ParseResult {
     let mut state = ParseState::Neither;
     let mut parsed_blocks = 0;
 
-    for line in input.lines().filter_map(Result::ok) {
+    let mut line = String::new();
+    while input.read_line(&mut line)? > 0 {
         match state {
             ParseState::ParsingIds => match ID_REGEX.captures(&line) {
                 Some(caps) => {
@@ -89,7 +91,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
                     );
                 }
                 None => {
-                    if line == "end" {
+                    if line.trim() == "end" {
                         state = ParseState::Neither;
                         if parsed_blocks == 2 {
                             break;
@@ -109,6 +111,7 @@ fn parse(input: BufReader<File>) -> ParseResult {
                 }
             }
         }
+        line.clear();
     }
 
     let mut var_to_id_map = Map::with_capacity(vars_map.len());
@@ -127,12 +130,12 @@ fn parse(input: BufReader<File>) -> ParseResult {
         .map(|(comment, id)| (id, comment))
         .collect();
 
-    ParseResult {
+    Ok(ParseResult {
         module_name,
         var_to_id_map,
         missing_vars,
         missing_ids,
-    }
+    })
 }
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
@@ -257,7 +260,7 @@ fn main() -> Result<(), Error> {
                 File::open(&input_path).map_err(|e| (input_path.clone(), From::from(e)))?,
             );
 
-            let parse_result = parse(input);
+            let parse_result = parse(input).map_err(|e| (input_path.clone(), From::from(e)))?;
 
             if parse_result.var_to_id_map.is_empty() {
                 Ok((input_path, parse_result))

@@ -36,11 +36,12 @@ enum ParseState {
     Neither,
 }
 
-fn parse(file: BufReader<File>) -> ParseResult {
+fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
     static IDS_START: &str = "mod:RegisterEnableMob(";
     static VARS_START: &str = "if L then";
 
-    static ID_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+)$"#).unwrap());
+    static ID_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+?)\n?$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+)""#).unwrap());
 
@@ -50,7 +51,8 @@ fn parse(file: BufReader<File>) -> ParseResult {
     let mut state = ParseState::Neither;
     let mut parsed_blocks = 0;
 
-    for line in file.lines().filter_map(Result::ok) {
+    let mut line = String::new();
+    while file.read_line(&mut line)? > 0 {
         match state {
             ParseState::ParsingIds => match ID_REGEX.captures(&line) {
                 Some(caps) => {
@@ -80,7 +82,7 @@ fn parse(file: BufReader<File>) -> ParseResult {
                     );
                 }
                 None => {
-                    if line == "end" {
+                    if line.trim() == "end" {
                         state = ParseState::Neither;
                         if parsed_blocks == 1 {
                             break;
@@ -97,6 +99,7 @@ fn parse(file: BufReader<File>) -> ParseResult {
                 }
             }
         }
+        line.clear();
     }
 
     let mut var_to_id_map = Map::with_capacity(vars_map.len());
@@ -115,11 +118,11 @@ fn parse(file: BufReader<File>) -> ParseResult {
         .map(|(comment, id)| (id, comment))
         .collect();
 
-    ParseResult {
+    Ok(ParseResult {
         var_to_id_map,
         missing_vars,
         missing_ids,
-    }
+    })
 }
 
 fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
@@ -173,7 +176,7 @@ fn main() -> Result<(), Error> {
         Err(err) => return Err(err.into()),
     }
 
-    let result = parse(BufReader::new(file));
+    let result = parse(BufReader::new(file))?;
 
     pretty_print(result).map_err(From::from)
 }
