@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use regex::Regex;
+use regex::{Regex, Replacer};
 
 use crate::Map;
 use std::{
@@ -27,6 +27,13 @@ static LOCALE_ASSIGNMENT_REGEX: Lazy<Regex> =
 
 fn offset<'a>(haystack: &'a str, needle: &'a str) -> usize {
     needle.as_ptr() as usize - haystack.as_ptr() as usize
+}
+
+pub(crate) fn replace_owning<R: Replacer>(source: String, regex: &Regex, replacement: R) -> String {
+    match regex.replace(&source, replacement) {
+        Cow::Owned(inner) => inner,
+        Cow::Borrowed(_) => source,
+    }
 }
 
 pub(crate) fn discard_existing(

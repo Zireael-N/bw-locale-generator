@@ -2,7 +2,9 @@ use crossbeam_channel as channel;
 use indexmap::IndexMap as Map;
 use isahc::config::RedirectPolicy;
 use isahc::prelude::*;
+use once_cell::sync::Lazy;
 use rayon::prelude::*;
+use regex::Regex;
 use select::{document::Document, predicate::Class};
 use std::{
     env,
@@ -131,6 +133,8 @@ impl Localizer {
     }
 
     fn process_languages(self) {
+        static TITLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s+<.+?>$"#).unwrap());
+
         let total = self.data.iter().fold(0, |acc, el| acc + el.ids_map.len());
 
         if total > 0 {
@@ -226,6 +230,8 @@ impl Localizer {
                                             }
                                             _ => (translation, true),
                                         };
+                                        let translation =
+                                            utils::replace_owning(translation, &TITLE_REGEX, "");
                                         Some((name, (translation, is_valid)))
                                     }
                                     Err(e) => {
