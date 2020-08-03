@@ -224,14 +224,14 @@ impl Localizer {
                                 match result {
                                     Ok(translation) => {
                                         let _ = tx.send(Ok(()));
+                                        let translation =
+                                            utils::replace_owning(translation, &TITLE_REGEX, "");
                                         let (translation, is_valid) = match translation.as_bytes() {
                                             [b'[', rest @ .., b']'] => {
                                                 (String::from_utf8(rest.to_vec()).unwrap(), false)
                                             }
                                             _ => (translation, true),
                                         };
-                                        let translation =
-                                            utils::replace_owning(translation, &TITLE_REGEX, "");
                                         Some((name, (translation, is_valid)))
                                     }
                                     Err(e) => {
