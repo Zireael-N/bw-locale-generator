@@ -232,9 +232,10 @@ pub(crate) fn write_to_dir(
                 tmp_file
                     .write_all(replaced.as_bytes())
                     .map_err(|e| (tmp_path.clone(), e))?;
-                tmp_file.flush().map_err(|e| (tmp_path.clone(), e))?;
+                tmp_file.sync_all().map_err(|e| (tmp_path.clone(), e))?;
 
                 drop(to_file);
+                drop(tmp_file);
 
                 // Fails if files belong to different filesystems
                 if fs::rename(&tmp_path, &to_path).is_err() {

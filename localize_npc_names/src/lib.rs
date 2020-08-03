@@ -258,6 +258,14 @@ impl Localizer {
 
             drop(tx);
             stderr_thread.join().unwrap();
+
+            if let Err(e) = File::open(&output_dir).and_then(|dir| dir.sync_all()) {
+                eprintln!(
+                    "Failed to call fsync() on \"{}\": {}",
+                    output_dir.display(),
+                    e
+                );
+            }
         } else {
             eprintln!("There's nothing to do.");
         }
