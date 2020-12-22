@@ -29,7 +29,11 @@ fn offset<'a>(haystack: &'a str, needle: &'a str) -> usize {
     needle.as_ptr() as usize - haystack.as_ptr() as usize
 }
 
-pub(crate) fn replace_owning<R: Replacer>(source: String, regex: &Regex, mut replacement: R) -> String {
+pub(crate) fn replace_owning<R: Replacer>(
+    source: String,
+    regex: &Regex,
+    mut replacement: R,
+) -> String {
     if let Some(cap) = regex.captures_iter(&source).next() {
         let mut new = String::with_capacity(source.len());
 
@@ -140,8 +144,7 @@ fn replace<'a, 'b>(
                     if let Some((translation, is_valid)) = values.remove(name) {
                         let is_comment = caps.at(1).is_some();
                         let leftover = caps.at(4).unwrap();
-                        if is_valid && (is_comment || caps.at(3).unwrap() != translation)
-                        {
+                        if is_valid && (is_comment || caps.at(3).unwrap() != translation) {
                             let offset = offset(src, line);
 
                             scratch.extend_from_slice(&bytes[copy_from..offset]);
