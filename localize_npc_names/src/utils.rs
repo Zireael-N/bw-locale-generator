@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use regex::{Regex, Replacer};
+use onig::{Regex, Replacer};
 
 use crate::Map;
 use std::{
@@ -23,16 +23,24 @@ enum State {
 }
 
 static LOCALE_ASSIGNMENT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"\s*(--)?\s*L\.((?-u)\w*)\s*=\s*"(.*?)"(.*)"#).unwrap());
+    Lazy::new(|| Regex::new(r#"\s*(--)?\s*L\.(\w*)\s*=\s*"(.*?)(?<!\\)"(.*)"#).unwrap());
 
 fn offset<'a>(haystack: &'a str, needle: &'a str) -> usize {
     needle.as_ptr() as usize - haystack.as_ptr() as usize
 }
 
-pub(crate) fn replace_owning<R: Replacer>(source: String, regex: &Regex, replacement: R) -> String {
-    match regex.replace(&source, replacement) {
-        Cow::Owned(inner) => inner,
-        Cow::Borrowed(_) => source,
+pub(crate) fn replace_owning<R: Replacer>(source: String, regex: &Regex, mut replacement: R) -> String {
+    if let Some(cap) = regex.captures_iter(&source).next() {
+        let mut new = String::with_capacity(source.len());
+
+        let (start, end) = cap.pos(0).unwrap();
+        new.push_str(&source[..start]);
+        new.push_str(&replacement.reg_replace(&cap));
+        new.push_str(&source[end..]);
+
+        new
+    } else {
+        source
     }
 }
 
@@ -63,8 +71,8 @@ pub(crate) fn discard_existing(
                 if line.trim() == "end" {
                     break;
                 } else if let Some(caps) = LOCALE_ASSIGNMENT_REGEX.captures(&line) {
-                    let is_comment = caps.get(1).is_some();
-                    let name = caps.get(2).unwrap().as_str();
+                    let is_comment = caps.at(1).is_some();
+                    let name = caps.at(2).unwrap();
 
                     if !is_comment {
                         let _ = map.remove(name);
@@ -127,12 +135,12 @@ fn replace<'a, 'b>(
                     state = State::Done;
                     break;
                 } else if let Some(caps) = LOCALE_ASSIGNMENT_REGEX.captures(line) {
-                    let name = caps.get(2).unwrap().as_str();
+                    let name = caps.at(2).unwrap();
 
                     if let Some((translation, is_valid)) = values.remove(name) {
-                        let is_comment = caps.get(1).is_some();
-                        let leftover = caps.get(4).unwrap().as_str();
-                        if is_valid && (is_comment || caps.get(3).unwrap().as_str() != translation)
+                        let is_comment = caps.at(1).is_some();
+                        let leftover = caps.at(4).unwrap();
+                        if is_valid && (is_comment || caps.at(3).unwrap() != translation)
                         {
                             let offset = offset(src, line);
 

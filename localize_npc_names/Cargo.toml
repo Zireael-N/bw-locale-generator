@@ -1,6 +1,6 @@
 [package]
 name = "localize_npc_names"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Velithris"]
 edition = "2018"
 
@@ -9,8 +9,8 @@ crossbeam-channel = "0.4"
 indexmap = { version = "1", features = ["serde-1"] }
 isahc = { version = "0.9", default-features = false, features = ["http2", "static-curl"] }
 once_cell = "1"
+onig = "6.1"
 rayon = "1"
-regex = "1"
 select = "0.5"
 serde = "1"
 serde_yaml = "0.8"

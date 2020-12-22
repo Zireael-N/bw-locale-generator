@@ -3,8 +3,8 @@ use indexmap::IndexMap as Map;
 use isahc::config::RedirectPolicy;
 use isahc::prelude::*;
 use once_cell::sync::Lazy;
+use onig::Regex;
 use rayon::prelude::*;
-use regex::Regex;
 use select::{document::Document, predicate::Class};
 use std::{
     borrow::Cow,
@@ -227,6 +227,11 @@ impl Localizer {
                                         let _ = tx.send(Ok(()));
                                         let translation =
                                             utils::replace_owning(translation, &TITLE_REGEX, "");
+                                        let translation = if translation.contains('\"') {
+                                            translation.replace("\"", "\\\"")
+                                        } else {
+                                            translation
+                                        };
                                         let (translation, is_valid) = match translation.as_bytes() {
                                             [b'[', rest @ .., b']'] => {
                                                 (String::from_utf8(rest.to_vec()).unwrap(), false)
