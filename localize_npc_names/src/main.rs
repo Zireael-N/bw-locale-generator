@@ -40,10 +40,7 @@ fn main() -> Result<(), Error> {
 
     let ids_map: Map<String, i64> =
         serde_yaml::from_reader(BufReader::new(File::open(&yaml_path)?))?;
-    let force_all = match env::var_os("FORCE_ALL") {
-        Some(ref v) if v == "1" => true,
-        _ => false,
-    };
+    let force_all = matches!(env::var_os("FORCE_ALL"), Some(ref v) if v == "1");
     let module_name = match module_name {
         Some(module_name) => module_name,
         None => format!("{} Trash", yaml_path.file_stem().unwrap().to_string_lossy()),
