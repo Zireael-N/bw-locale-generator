@@ -7,6 +7,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use select::{document::Document, predicate::Class};
 use std::{
+    borrow::Cow,
     env,
     fs::File,
     io::{BufReader, Write},
@@ -95,7 +96,7 @@ impl Localizer {
     }
 
     #[cfg(unix)]
-    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+    fn get_tmp_dir(output_dir: &Path) -> Cow<'_, Path> {
         use std::fs;
         use std::os::unix::fs::MetadataExt;
 
@@ -104,13 +105,13 @@ impl Localizer {
             fs::metadata(output_dir).map(|v| v.dev()),
             fs::metadata(&os_tmp).map(|v| v.dev()),
         ) {
-            (Ok(num1), Ok(num2)) if num1 == num2 => os_tmp,
-            _ => output_dir.to_path_buf(),
+            (Ok(num1), Ok(num2)) if num1 == num2 => Cow::from(os_tmp),
+            _ => Cow::from(output_dir),
         }
     }
 
     #[cfg(windows)]
-    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
+    fn get_tmp_dir(output_dir: &Path) -> Cow<'_, Path> {
         use winapi_util::{file, Handle};
 
         let os_tmp = env::temp_dir();
@@ -121,15 +122,15 @@ impl Localizer {
         };
 
         match (serial_num(output_dir), serial_num(&os_tmp)) {
-            (Ok(num1), Ok(num2)) if num1 == num2 => os_tmp,
-            _ => output_dir.to_path_buf(),
+            (Ok(num1), Ok(num2)) if num1 == num2 => Cow::from(os_tmp),
+            _ => Cow::from(output_dir),
         }
     }
 
     #[cfg(not(any(unix, windows)))]
     #[inline(always)]
-    fn get_tmp_dir(output_dir: &Path) -> PathBuf {
-        output_dir.to_path_buf()
+    fn get_tmp_dir(output_dir: &Path) -> Cow<'_, Path> {
+        Cow::from(output_dir)
     }
 
     fn process_languages(self) {
