@@ -306,7 +306,11 @@ pub(crate) fn write_to_dir(
                 to_file
                     .write_all(LINE_ENDING)
                     .map_err(|e| (to_path.clone(), e))?;
-                to_file.flush().map_err(|e| (to_path, e))?;
+
+                to_file.flush().map_err(|e| (to_path.clone(), e))?;
+                if let Ok(to_file) = to_file.into_inner() {
+                    to_file.sync_all().map_err(|e| (to_path, e))?;
+                }
             } else {
                 // Insufficient permissions or whatever else.
                 return Err((to_path, e));

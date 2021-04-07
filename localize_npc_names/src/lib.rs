@@ -1,11 +1,16 @@
 use crossbeam_channel as channel;
 use indexmap::IndexMap as Map;
-use isahc::config::RedirectPolicy;
-use isahc::prelude::*;
+use isahc::{
+    config::{Configurable, RedirectPolicy},
+    HttpClient,
+};
 use once_cell::sync::Lazy;
 use onig::Regex;
 use rayon::prelude::*;
-use select::{document::Document, predicate::Class};
+use select::{
+    document::Document,
+    predicate::{Class, Name},
+};
 use std::{
     borrow::Cow,
     env,
@@ -21,7 +26,7 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36";
+const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36";
 
 #[derive(Debug, Clone)]
 pub struct LanguageData {
@@ -189,7 +194,7 @@ impl Localizer {
                         .default_header("accept-language", "en-US,en;q=0.9")
                         .default_header("sec-fetch-dest", "document")
                         .default_header("sec-fetch-mode", "navigate")
-                        .default_header("sec-fetch-site", "none")
+                        .default_header("sec-fetch-site", "same-site")
                         .default_header("sec-fetch-user", "?1")
                         .default_header("upgrade-insecure-requests", "1")
                         .default_header("user-agent", USER_AGENT)
@@ -207,7 +212,7 @@ impl Localizer {
 
                             move |(name, id)| {
                                 let result: Result<_, Error> = client
-                                    .get(&format!("https://{}.wowhead.com/npc={}", subdomain, id,))
+                                    .get(&format!("https://{}.wowhead.com/npc={}", subdomain, id))
                                     .map_err(From::from)
                                     .and_then(|mut response| {
                                         Document::from_read(response.body_mut()).map_err(From::from)
@@ -216,9 +221,25 @@ impl Localizer {
                                         document
                                             .find(Class("heading-size-1"))
                                             .next()
-                                            .map(|node| node.text())
                                             .ok_or_else(|| {
                                                 "Couldn't find an element .heading-size-1".into()
+                                            })
+                                            .and_then(|node| {
+                                                // Check if we were redirected to the search page.
+
+                                                if let Some(parent) = node.parent().and_then(|n| n.parent()) {
+                                                    if parent.is(Name("form")) {
+                                                        return Err("Not a valid NPC ID".into());
+                                                    }
+
+                                                    for child in parent.children() {
+                                                        if child.is(Class("database-detail-page-not-found-message")) {
+                                                            return Err("Not a valid NPC ID".into());
+                                                        }
+                                                    }
+                                                }
+
+                                                Ok(node.text())
                                             })
                                     });
 
