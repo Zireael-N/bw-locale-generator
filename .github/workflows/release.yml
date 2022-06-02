@@ -15,8 +15,8 @@ jobs:
 
       - name: Get the release version from the tag
         run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          echo "version is: ${{ env.VERSION }}"
+          echo "VERSION=${GITHUB_REF#refs/tags/}" | tee -a $GITHUB_ENV
+
       - name: Create GitHub release
         id: release
         uses: actions/create-release@v1
@@ -48,7 +48,7 @@ jobs:
         build: [linux, macos, win-msvc, win-gnu, win32-msvc, win32-gnu]
         include:
         - build: linux
-          os: ubuntu-18.04
+          os: ubuntu-latest
           rust: stable
           target: x86_64-unknown-linux-musl
         - build: macos
@@ -56,19 +56,19 @@ jobs:
           rust: stable
           target: x86_64-apple-darwin
         - build: win-msvc
-          os: windows-2019
+          os: windows-latest
           rust: stable
           target: x86_64-pc-windows-msvc
         - build: win-gnu
-          os: windows-2019
+          os: windows-latest
           rust: stable
           target: x86_64-pc-windows-gnu
         - build: win32-msvc
-          os: windows-2019
+          os: windows-latest
           rust: stable
           target: i686-pc-windows-msvc
         - build: win32-gnu
-          os: windows-2019
+          os: windows-latest
           rust: stable
           target: i686-pc-windows-gnu
 
@@ -95,12 +95,9 @@ jobs:
     - name: Set release upload URL and release version
       shell: bash
       run: |
-        release_upload_url="$(cat artifacts/release-upload-url)"
-        echo "RELEASE_UPLOAD_URL=$release_upload_url" >> $GITHUB_ENV
-        echo "release upload url: $RELEASE_UPLOAD_URL"
-        release_version="$(cat artifacts/release-version)"
-        echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-        echo "release version: $RELEASE_VERSION"
+        echo "RELEASE_UPLOAD_URL=$(cat artifacts/release-upload-url)" | tee -a $GITHUB_ENV
+        echo "RELEASE_VERSION=$(cat artifacts/release-version)" | tee -a $GITHUB_ENV
+
     - name: Build release binaries
       run: cargo build --verbose --release
 
@@ -110,24 +107,29 @@ jobs:
         strip "target/release/generate_yaml_from_dir"
         strip "target/release/generate_yaml_from_one"
         strip "target/release/localize_npc_names"
+
     - name: Build archive
       shell: bash
       run: |
-        release="bw_locale_generator-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
-        mkdir -p "$release"
-        if [ "${{ matrix.os }}" = "windows-2019" ]; then
-          cp "target/release/generate_yaml_from_dir.exe" "$release/"
-          cp "target/release/generate_yaml_from_one.exe" "$release/"
-          cp "target/release/localize_npc_names.exe" "$release/"
-          7z a "$release.zip" "$release"
-          echo "ASSET=$release.zip" >> $GITHUB_ENV
+        OUTPUT_DIR="bw_locale_generator-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
+        mkdir -p "$OUTPUT_DIR"
+
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          cp "target/release/generate_yaml_from_dir.exe" "$OUTPUT_DIR/"
+          cp "target/release/generate_yaml_from_one.exe" "$OUTPUT_DIR/"
+          cp "target/release/localize_npc_names.exe" "$OUTPUT_DIR/"
+          ASSET="$OUTPUT_DIR.zip"
+          7z a "$ASSET" "$OUTPUT_DIR"
+          echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
         else
-          cp "target/release/generate_yaml_from_dir" "$release/"
-          cp "target/release/generate_yaml_from_one" "$release/"
-          cp "target/release/localize_npc_names" "$release/"
-          tar czf "$release.tar.gz" "$release"
-          echo "ASSET=$release.tar.gz" >> $GITHUB_ENV
+          cp "target/release/generate_yaml_from_dir" "$OUTPUT_DIR/"
+          cp "target/release/generate_yaml_from_one" "$OUTPUT_DIR/"
+          cp "target/release/localize_npc_names" "$OUTPUT_DIR/"
+          ASSET="$OUTPUT_DIR.tar.gz"
+          tar czf "$ASSET" "$OUTPUT_DIR"
+          echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
         fi
+
     - name: Upload release archive
       uses: actions/upload-release-asset@v1.0.1
       env:

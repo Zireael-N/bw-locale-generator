@@ -26,7 +26,12 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36";
+const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36";
+static USER_AGENT: Lazy<Cow<'static, str>> = Lazy::new(|| {
+    env::var("USER_AGENT")
+        .map(Cow::from)
+        .unwrap_or_else(|_| Cow::from(DEFAULT_USER_AGENT))
+});
 
 #[derive(Debug, Clone)]
 pub struct LanguageData {
@@ -197,7 +202,7 @@ impl Localizer {
                         .default_header("sec-fetch-site", "same-site")
                         .default_header("sec-fetch-user", "?1")
                         .default_header("upgrade-insecure-requests", "1")
-                        .default_header("user-agent", USER_AGENT)
+                        .default_header("user-agent", &**USER_AGENT)
                         .build()
                         .unwrap();
 
@@ -249,7 +254,7 @@ impl Localizer {
                                         let translation =
                                             utils::replace_owning(translation, &TITLE_REGEX, "");
                                         let translation = if translation.contains('\"') {
-                                            translation.replace("\"", "\\\"")
+                                            translation.replace('\"', "\\\"")
                                         } else {
                                             translation
                                         };
