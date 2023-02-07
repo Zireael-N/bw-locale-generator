@@ -9,10 +9,10 @@ jobs:
   create-release:
     name: create-release
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+      version: ${{ env.VERSION }}
     steps:
-      - name: Create artifacts directory
-        run: mkdir artifacts
-
       - name: Get the release version from the tag
         run: |
           echo "VERSION=${GITHUB_REF#refs/tags/}" | tee -a $GITHUB_ENV
@@ -26,31 +26,18 @@ jobs:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
 
-      - name: Save release upload URL to artifact
-        run: echo "${{ steps.release.outputs.upload_url }}" > artifacts/release-upload-url
-
-      - name: Save version number to artifact
-        shell: bash
-        run: echo "${{ env.VERSION }}" | sed "s/^v//" > artifacts/release-version
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: artifacts
-          path: artifacts
-
   build-release:
     name: build-release
     needs: ['create-release']
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux, macos, win-msvc, win-gnu, win32-msvc, win32-gnu]
+        build: [linux, macos, win-msvc, win32-msvc]
         include:
         - build: linux
           os: ubuntu-latest
           rust: stable
-          target: x86_64-unknown-linux-musl
+          target: x86_64-unknown-linux-gnu
         - build: macos
           os: macos-latest
           rust: stable
@@ -59,24 +46,14 @@ jobs:
           os: windows-latest
           rust: stable
           target: x86_64-pc-windows-msvc
-        - build: win-gnu
-          os: windows-latest
-          rust: stable
-          target: x86_64-pc-windows-gnu
         - build: win32-msvc
           os: windows-latest
           rust: stable
           target: i686-pc-windows-msvc
-        - build: win32-gnu
-          os: windows-latest
-          rust: stable
-          target: i686-pc-windows-gnu
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v3
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
@@ -86,45 +63,33 @@ jobs:
         override: true
         target: ${{ matrix.target }}
 
-    - name: Get release download URL
-      uses: actions/download-artifact@v1
-      with:
-        name: artifacts
-        path: artifacts
-
-    - name: Set release upload URL and release version
-      shell: bash
-      run: |
-        echo "RELEASE_UPLOAD_URL=$(cat artifacts/release-upload-url)" | tee -a $GITHUB_ENV
-        echo "RELEASE_VERSION=$(cat artifacts/release-version)" | tee -a $GITHUB_ENV
-
     - name: Build release binaries
-      run: cargo build --verbose --release
+      run: cargo build --verbose --release --target ${{ matrix.target }}
 
     - name: Strip release binaries
       if: matrix.build == 'linux' || matrix.build == 'macos'
       run: |
-        strip "target/release/generate_yaml_from_dir"
-        strip "target/release/generate_yaml_from_one"
-        strip "target/release/localize_npc_names"
+        strip "target/${{ matrix.target }}/release/generate_yaml_from_dir"
+        strip "target/${{ matrix.target }}/release/generate_yaml_from_one"
+        strip "target/${{ matrix.target }}/release/localize_npc_names"
 
     - name: Build archive
       shell: bash
       run: |
-        OUTPUT_DIR="bw_locale_generator-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
+        OUTPUT_DIR="bw_locale_generator-${{ needs.create-release.outputs.version }}-${{ matrix.target }}"
         mkdir -p "$OUTPUT_DIR"
 
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          cp "target/release/generate_yaml_from_dir.exe" "$OUTPUT_DIR/"
-          cp "target/release/generate_yaml_from_one.exe" "$OUTPUT_DIR/"
-          cp "target/release/localize_npc_names.exe" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_yaml_from_dir.exe" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_yaml_from_one.exe" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/localize_npc_names.exe" "$OUTPUT_DIR/"
           ASSET="$OUTPUT_DIR.zip"
           7z a "$ASSET" "$OUTPUT_DIR"
           echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
         else
-          cp "target/release/generate_yaml_from_dir" "$OUTPUT_DIR/"
-          cp "target/release/generate_yaml_from_one" "$OUTPUT_DIR/"
-          cp "target/release/localize_npc_names" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_yaml_from_dir" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_yaml_from_one" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/localize_npc_names" "$OUTPUT_DIR/"
           ASSET="$OUTPUT_DIR.tar.gz"
           tar czf "$ASSET" "$OUTPUT_DIR"
           echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
@@ -135,7 +100,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ${{ env.ASSET }}
         asset_name: ${{ env.ASSET }}
         asset_content_type: application/octet-stream
