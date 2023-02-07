@@ -1,6 +1,6 @@
 [package]
 name = "generate_yaml_from_dir"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Velithris"]
 edition = "2021"
 
@@ -12,4 +12,4 @@ regex = "1"
 walkdir = "2"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.jemallocator]
-version = "0.3"
+version = "0.5"

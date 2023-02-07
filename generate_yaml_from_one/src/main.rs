@@ -133,20 +133,20 @@ fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
     let mut stderr = stderr.lock();
 
     for (variable, id) in parse_result.var_to_id_map.iter() {
-        writeln!(stdout, "{}: {}", variable, id)?;
+        writeln!(stdout, "{variable}: {id}")?;
     }
 
     if !parse_result.missing_vars.is_empty() {
         stderr.write_all(b"\nMissing variables:\n")?;
         for (variable, value) in parse_result.missing_vars.iter() {
-            writeln!(stderr, "{} (\"{}\")", variable, value)?;
+            writeln!(stderr, "{variable} (\"{value}\")")?;
         }
     }
 
     if !parse_result.missing_ids.is_empty() {
         stderr.write_all(b"\nMissing IDs:\n")?;
         for (id, comment) in parse_result.missing_ids.iter() {
-            writeln!(stderr, "{} (\"{}\")", id, comment)?;
+            writeln!(stderr, "{id} (\"{comment}\")")?;
         }
     }
 

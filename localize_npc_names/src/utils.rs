@@ -91,9 +91,9 @@ pub(crate) fn discard_existing(
     Ok(())
 }
 
-fn replace<'a, 'b>(
+fn replace<'a>(
     src: &'a str,
-    header: &'b str,
+    header: &str,
     mut values: Map<String, (String, bool)>,
 ) -> Option<Cow<'a, str>> {
     let mut state = State::Initial;
@@ -149,8 +149,7 @@ fn replace<'a, 'b>(
 
                             scratch.extend_from_slice(&bytes[copy_from..offset]);
                             scratch.extend_from_slice(
-                                format!("\tL.{} = \"{}\"{}", name, translation, leftover)
-                                    .as_bytes(),
+                                format!("\tL.{name} = \"{translation}\"{leftover}").as_bytes(),
                             );
                             copy_from = offset + line.len();
                         }
@@ -217,7 +216,7 @@ pub(crate) fn write_to_dir(
     header: &str,
     values: Map<String, (String, bool)>,
 ) -> Result<(), (PathBuf, io::Error)> {
-    let to_path = output_dir.join(format!("{}.lua", language_code));
+    let to_path = output_dir.join(format!("{language_code}.lua"));
     match File::open(&to_path) {
         // File exists, replace its contents if needed.
         Ok(mut to_file) => {
@@ -238,7 +237,7 @@ pub(crate) fn write_to_dir(
 
                 // Renaming a file is an atomic operation, writing to it is not.
                 // Create a temporary file and then rename it to prevent leaving an existing file in a bad state.
-                let tmp_path = tmp_dir.join(format!("{}-{}.lua.tmp", language_code, unix_ts));
+                let tmp_path = tmp_dir.join(format!("{language_code}-{unix_ts}.lua.tmp"));
                 let mut tmp_file = File::create(&tmp_path).map_err(|e| (tmp_path.clone(), e))?;
                 tmp_file
                     .write_all(replaced.as_bytes())

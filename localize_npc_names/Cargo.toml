@@ -1,6 +1,6 @@
 [package]
 name = "localize_npc_names"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Velithris"]
 edition = "2021"
 
@@ -11,12 +11,12 @@ isahc = { version = "1", default-features = false, features = ["http2", "static-
 once_cell = "1"
 onig = { version = "6", default-features = false }
 rayon = "1"
-select = "0.5"
+select = "0.6"
 serde = "1"
-serde_yaml = "0.8"
+serde_yaml = "0.9"
 
 [target.'cfg(windows)'.dependencies.winapi-util]
 version = "0.1"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.jemallocator]
-version = "0.3"
+version = "0.5"

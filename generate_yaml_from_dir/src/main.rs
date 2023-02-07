@@ -140,7 +140,7 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
     for (variable, id) in parse_result.var_to_id_map.iter() {
-        writeln!(output, "{}: {}", variable, id)?;
+        writeln!(output, "{variable}: {id}")?;
     }
 
     output.flush()
@@ -169,14 +169,14 @@ fn print_errors(
                     if vars_missing {
                         stderr.write_all(b"\nMissing variables:\n")?;
                         for (variable, value) in parse_result.missing_vars.iter() {
-                            writeln!(stderr, "{} (\"{}\")", variable, value)?;
+                            writeln!(stderr, "{variable} (\"{value}\")")?;
                         }
                     }
 
                     if ids_missing {
                         stderr.write_all(b"\nMissing IDs:\n")?;
                         for (id, comment) in parse_result.missing_ids.iter() {
-                            writeln!(stderr, "{} (\"{}\")", id, comment)?;
+                            writeln!(stderr, "{id} (\"{comment}\")")?;
                         }
                     }
 
@@ -253,7 +253,7 @@ fn main() -> Result<(), Error> {
             }?;
 
             if let Some(parent) = output_path.parent() {
-                fs::create_dir_all(&parent).map_err(|e| (input_path.clone(), From::from(e)))?;
+                fs::create_dir_all(parent).map_err(|e| (input_path.clone(), From::from(e)))?;
             }
 
             let input = BufReader::new(
@@ -267,7 +267,7 @@ fn main() -> Result<(), Error> {
             } else {
                 let output_file = match parse_result.module_name {
                     Some(ref v) => {
-                        match File::create(output_path.with_file_name(format!("{}.yaml", v))) {
+                        match File::create(output_path.with_file_name(format!("{v}.yaml"))) {
                             Ok(file) => Ok(file),
                             Err(_) => File::create(&output_path)
                                 .map_err(|e| (input_path.clone(), From::from(e))),

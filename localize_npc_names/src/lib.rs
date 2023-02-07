@@ -26,7 +26,7 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36";
+const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
 static USER_AGENT: Lazy<Cow<'static, str>> = Lazy::new(|| {
     env::var("USER_AGENT")
         .map(Cow::from)
@@ -58,14 +58,14 @@ impl Localizer {
         let localizer = Self {
             data: Self::construct_language_data(vec![
                 // ("www", "enUS", String::from("L = mod:GetLocale()")),
-                ("de", "deDE", format!("L = BigWigs:NewBossLocale(\"{}\", \"deDE\")", module_name)),
-                ("es", "esES", format!("L = BigWigs:NewBossLocale(\"{name}\", \"esES\") or BigWigs:NewBossLocale(\"{name}\", \"esMX\")", name=module_name)),
-                ("fr", "frFR", format!("L = BigWigs:NewBossLocale(\"{}\", \"frFR\")", module_name)),
-                ("it", "itIT", format!("L = BigWigs:NewBossLocale(\"{}\", \"itIT\")", module_name)),
-                ("pt", "ptBR", format!("L = BigWigs:NewBossLocale(\"{}\", \"ptBR\")", module_name)),
-                ("ru", "ruRU", format!("L = BigWigs:NewBossLocale(\"{}\", \"ruRU\")", module_name)),
-                ("ko", "koKR", format!("L = BigWigs:NewBossLocale(\"{}\", \"koKR\")", module_name)),
-                ("cn", "zhCN", format!("L = BigWigs:NewBossLocale(\"{}\", \"zhCN\")", module_name)),
+                ("de", "deDE", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"deDE\")")),
+                ("es", "esES", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"esES\") or BigWigs:NewBossLocale(\"{module_name}\", \"esMX\")")),
+                ("fr", "frFR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"frFR\")")),
+                ("it", "itIT", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"itIT\")")),
+                ("pt", "ptBR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ptBR\")")),
+                ("ru", "ruRU", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ruRU\")")),
+                ("ko", "koKR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"koKR\")")),
+                ("cn", "zhCN", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"zhCN\")")),
             ], &ids_map, if force_all { None } else { Some(&output_dir) }),
             output_dir,
         };
@@ -156,7 +156,7 @@ impl Localizer {
                 let mut stderr = stderr.lock();
                 let mut processed = 0;
 
-                let _ = write!(stderr, "\rProgress: 0 / {}", total);
+                let _ = write!(stderr, "\rProgress: 0 / {total}");
                 while let Ok(msg) = rx.recv() {
                     match msg {
                         Err(ProcessingError::IoError((path, e))) => {
@@ -170,14 +170,13 @@ impl Localizer {
                         Err(ProcessingError::DataError((language, mob_name, e))) => {
                             let _ = writeln!(
                                 stderr,
-                                "\rFailed to collect data for \"{}\" ({}), error: {}",
-                                mob_name, language, e
+                                "\rFailed to collect data for \"{mob_name}\" ({language}), error: {e}"
                             );
                             processed += 1;
                         }
                         _ => processed += 1,
                     }
-                    let _ = write!(stderr, "\rProgress: {} / {}", processed, total);
+                    let _ = write!(stderr, "\rProgress: {processed} / {total}");
                 }
 
                 let _ = stderr.write(b"\n");
@@ -217,7 +216,7 @@ impl Localizer {
 
                             move |(name, id)| {
                                 let result: Result<_, Error> = client
-                                    .get(&format!("https://{}.wowhead.com/npc={}", subdomain, id))
+                                    .get(&format!("https://{subdomain}.wowhead.com/npc={id}"))
                                     .map_err(From::from)
                                     .and_then(|mut response| {
                                         Document::from_read(response.body_mut()).map_err(From::from)
