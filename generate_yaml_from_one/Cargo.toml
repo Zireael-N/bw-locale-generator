@@ -1,6 +1,6 @@
 [package]
 name = "generate_yaml_from_one"
-version = "0.1.9"
+version = "0.1.10"
 authors = ["Velithris"]
 edition = "2021"
 
