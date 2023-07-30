@@ -66,13 +66,6 @@ jobs:
     - name: Build release binaries
       run: cargo build --verbose --release --target ${{ matrix.target }}
 
-    - name: Strip release binaries
-      if: matrix.build == 'linux' || matrix.build == 'macos'
-      run: |
-        strip "target/${{ matrix.target }}/release/generate_yaml_from_dir"
-        strip "target/${{ matrix.target }}/release/generate_yaml_from_one"
-        strip "target/${{ matrix.target }}/release/localize_npc_names"
-
     - name: Build archive
       shell: bash
       run: |
