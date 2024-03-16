@@ -1,6 +1,6 @@
 [package]
 name = "localize_npc_names"
-version = "0.1.10"
+version = "0.1.11"
 authors = ["Velithris"]
 edition = "2021"
 
