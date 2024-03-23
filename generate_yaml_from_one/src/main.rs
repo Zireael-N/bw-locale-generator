@@ -1,6 +1,7 @@
 use indexmap::IndexMap as Map;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use serde::Serialize;
 use std::{
     env, fmt,
     fs::File,
@@ -13,9 +14,14 @@ static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
+#[derive(Serialize)]
 struct ParseResult {
+    module_name: Option<String>,
+    #[serde(rename = "npcs")]
     var_to_id_map: Map<String, i64>,
+    #[serde(skip)]
     missing_vars: Vec<(String, String)>,
+    #[serde(skip)]
     missing_ids: Vec<(i64, String)>,
 }
 
@@ -44,9 +50,13 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
         Lazy::new(|| Regex::new(r#"^\s*(\d+),?\s*--\s*(.+?)\n?$"#).unwrap());
     static VAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+)""#).unwrap());
+    static MODULE_DECL_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r#"^\s*local\s*mod(?:,\s*CL)?\s*=\s*BigWigs:NewBoss\("(.*?)""#).unwrap()
+    });
 
     let mut ids_map = Map::with_capacity(16);
     let mut vars_map = Map::with_capacity(16);
+    let mut module_name = None;
 
     let mut state = ParseState::Neither;
     let mut parsed_blocks = 0;
@@ -96,6 +106,8 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
                     state = ParseState::ParsingIds;
                 } else if line.starts_with(VARS_START) {
                     state = ParseState::ParsingVars;
+                } else if let Some(caps) = MODULE_DECL_REGEX.captures(&line) {
+                    module_name = caps.get(1).map(|v| v.as_str().into());
                 }
             }
         }
@@ -119,6 +131,7 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
         .collect();
 
     Ok(ParseResult {
+        module_name,
         var_to_id_map,
         missing_vars,
         missing_ids,
@@ -126,15 +139,13 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
 }
 
 fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
-    let stdout = std::io::stdout();
-    let mut stdout = stdout.lock();
+    let mut stdout = io::stdout().lock();
+    serde_yaml::to_writer(&mut stdout, &parse_result)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    stdout.flush()?;
+    drop(stdout);
 
-    let stderr = std::io::stderr();
-    let mut stderr = stderr.lock();
-
-    for (variable, id) in parse_result.var_to_id_map.iter() {
-        writeln!(stdout, "{variable}: {id}")?;
-    }
+    let mut stderr = io::stderr().lock();
 
     if !parse_result.missing_vars.is_empty() {
         stderr.write_all(b"\nMissing variables:\n")?;

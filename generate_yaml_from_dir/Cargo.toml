@@ -1,6 +1,6 @@
 [package]
 name = "generate_yaml_from_dir"
-version = "0.1.11"
+version = "0.1.12"
 authors = ["Velithris"]
 edition = "2021"
 
@@ -9,6 +9,8 @@ indexmap = { version = "1", features = ["serde-1"] }
 once_cell = "1"
 rayon = "1"
 regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
 walkdir = "2"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.jemallocator]
