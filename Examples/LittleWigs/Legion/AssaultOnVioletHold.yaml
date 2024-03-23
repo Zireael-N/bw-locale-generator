@@ -1,0 +1,5 @@
+module_name: Assault on Violet Hold Trash
+npcs:
+  keeper: 102336
+  guardian: 102337
+  infernal: 102398

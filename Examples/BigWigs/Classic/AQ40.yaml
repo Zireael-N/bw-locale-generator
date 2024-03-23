@@ -1,0 +1,6 @@
+module_name: Ahn'Qiraj Trash
+npcs:
+  sentinel: 15264
+  brainwasher: 15247
+  defender: 15277
+  crawler: 15240
