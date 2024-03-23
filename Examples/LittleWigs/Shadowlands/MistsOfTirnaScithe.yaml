@@ -1,0 +1,17 @@
+module_name: Mists of Tirna Scithe Trash
+npcs:
+  drust_boughbreaker: 164926
+  drust_harvester: 164921
+  drust_soulcleaver: 164920
+  mistveil_defender: 171772
+  mistveil_gorgegullet: 173720
+  mistveil_guardian: 166276
+  mistveil_matriarch: 173655
+  mistveil_nightblossom: 173714
+  mistveil_shaper: 166275
+  mistveil_stalker: 166301
+  mistveil_stinger: 166304
+  mistveil_tender: 166299
+  spinemaw_acidgullet: 167113
+  spinemaw_staghorn: 167111
+  tirnenn_villager: 164929

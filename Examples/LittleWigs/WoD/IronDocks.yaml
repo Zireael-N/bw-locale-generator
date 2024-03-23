@@ -1,0 +1,12 @@
+module_name: Iron Docks Trash
+npcs:
+  gromkar_battlemaster: 83025
+  gromkar_flameslinger: 81279
+  gromkar_technician: 83763
+  siegemaster_olugar: 83026
+  pitwarden_gwarnok: 84520
+  ogron_laborer: 83761
+  gromkar_chainmaster: 86526
+  thunderlord_wrangler: 83390
+  rampaging_clefthoof: 83392
+  ironwing_flamespitter: 83389
