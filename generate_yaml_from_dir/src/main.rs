@@ -2,6 +2,7 @@ use indexmap::IndexMap as Map;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use regex::Regex;
+use serde::Serialize;
 use std::{
     env, fmt,
     fs::{self, File},
@@ -16,10 +17,14 @@ static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
+#[derive(Serialize)]
 struct ParseResult {
     module_name: Option<String>,
+    #[serde(rename = "npcs")]
     var_to_id_map: Map<String, i64>,
+    #[serde(skip)]
     missing_vars: Vec<(String, String)>,
+    #[serde(skip)]
     missing_ids: Vec<(i64, String)>,
 }
 
@@ -49,8 +54,7 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
     static VAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#"^\s*L\.(\w+)\s*=\s*"(.+?)""#).unwrap());
     static MODULE_DECL_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r#"^\s*local\s*mod(?:,\s*CL)?\s*=\s*BigWigs:NewBoss\("(.*?)(?: Trash)""#)
-            .unwrap()
+        Regex::new(r#"^\s*local\s*mod(?:,\s*CL)?\s*=\s*BigWigs:NewBoss\("(.*?)""#).unwrap()
     });
 
     let mut ids_map = Map::with_capacity(16);
@@ -139,10 +143,8 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
 }
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
-    for (variable, id) in parse_result.var_to_id_map.iter() {
-        writeln!(output, "{variable}: {id}")?;
-    }
-
+    serde_yaml::to_writer(&mut output, parse_result)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
     output.flush()
 }
 
@@ -265,21 +267,9 @@ fn main() -> Result<(), Error> {
             if parse_result.var_to_id_map.is_empty() {
                 Ok((input_path, parse_result))
             } else {
-                let output_file = match parse_result.module_name {
-                    Some(ref v) => {
-                        match File::create(output_path.with_file_name(format!("{v}.yaml"))) {
-                            Ok(file) => Ok(file),
-                            Err(_) => File::create(&output_path)
-                                .map_err(|e| (input_path.clone(), From::from(e))),
-                        }
-                    }
-                    None => {
-                        File::create(&output_path).map_err(|e| (input_path.clone(), From::from(e)))
-                    }
-                };
-
-                let output_file = BufWriter::new(output_file?);
-
+                let output_file = BufWriter::new(
+                    File::create(&output_path).map_err(|e| (input_path.clone(), From::from(e)))?,
+                );
                 write_to_file(&parse_result, output_file)
                     .map_err(|e| (input_path.clone(), From::from(e)))
                     .map(|_| (input_path, parse_result))
