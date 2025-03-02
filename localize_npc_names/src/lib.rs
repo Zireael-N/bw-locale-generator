@@ -1,8 +1,8 @@
 use crossbeam_channel as channel;
 use indexmap::IndexMap as Map;
 use isahc::{
-    config::{Configurable, RedirectPolicy},
     HttpClient,
+    config::{Configurable, RedirectPolicy},
 };
 use once_cell::sync::Lazy;
 use onig::Regex;
@@ -26,7 +26,7 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.3";
+const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
 static USER_AGENT: Lazy<Cow<'static, str>> = Lazy::new(|| {
     env::var("USER_AGENT")
         .map(Cow::from)
@@ -56,17 +56,55 @@ impl Localizer {
     ) {
         let output_dir = output_dir.into();
         let localizer = Self {
-            data: Self::construct_language_data(vec![
-                // ("www", "enUS", String::from("L = mod:GetLocale()")),
-                ("de", "deDE", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"deDE\")")),
-                ("es", "esES", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"esES\") or BigWigs:NewBossLocale(\"{module_name}\", \"esMX\")")),
-                ("fr", "frFR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"frFR\")")),
-                ("it", "itIT", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"itIT\")")),
-                ("pt", "ptBR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ptBR\")")),
-                ("ru", "ruRU", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ruRU\")")),
-                ("ko", "koKR", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"koKR\")")),
-                ("cn", "zhCN", format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"zhCN\")")),
-            ], &ids_map, if force_all { None } else { Some(&output_dir) }),
+            data: Self::construct_language_data(
+                vec![
+                    // ("www", "enUS", String::from("L = mod:GetLocale()")),
+                    (
+                        "de",
+                        "deDE",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"deDE\")"),
+                    ),
+                    (
+                        "es",
+                        "esES",
+                        format!(
+                            "L = BigWigs:NewBossLocale(\"{module_name}\", \"esES\") or BigWigs:NewBossLocale(\"{module_name}\", \"esMX\")"
+                        ),
+                    ),
+                    (
+                        "fr",
+                        "frFR",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"frFR\")"),
+                    ),
+                    (
+                        "it",
+                        "itIT",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"itIT\")"),
+                    ),
+                    (
+                        "pt",
+                        "ptBR",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ptBR\")"),
+                    ),
+                    (
+                        "ru",
+                        "ruRU",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"ruRU\")"),
+                    ),
+                    (
+                        "ko",
+                        "koKR",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"koKR\")"),
+                    ),
+                    (
+                        "cn",
+                        "zhCN",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"zhCN\")"),
+                    ),
+                ],
+                &ids_map,
+                if force_all { None } else { Some(&output_dir) },
+            ),
             output_dir,
         };
 
@@ -122,7 +160,7 @@ impl Localizer {
 
     #[cfg(windows)]
     fn get_tmp_dir(output_dir: &Path) -> Cow<'_, Path> {
-        use winapi_util::{file, Handle};
+        use winapi_util::{Handle, file};
 
         let os_tmp = env::temp_dir();
         let serial_num = |path: &Path| {

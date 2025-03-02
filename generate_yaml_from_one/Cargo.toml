@@ -2,7 +2,7 @@
 name = "generate_yaml_from_one"
 version = "0.1.12"
 authors = ["Velithris"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 indexmap = { version = "1", features = ["serde-1"] }

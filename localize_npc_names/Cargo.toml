@@ -2,7 +2,7 @@
 name = "localize_npc_names"
 version = "0.1.12"
 authors = ["Velithris"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbeam-channel = "0.5"

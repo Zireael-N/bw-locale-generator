@@ -3,7 +3,7 @@ lto = true
 strip = true
 
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
     "generate_yaml_from_dir",
     "generate_yaml_from_one",
