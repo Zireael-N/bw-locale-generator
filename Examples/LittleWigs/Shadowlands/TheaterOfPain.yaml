@@ -1,9 +1,11 @@
 module_name: Theater Of Pain Trash
 npcs:
+  battlefield_ritualist: 174197
   raging_bloodhorn: 170850
   diseased_horror: 170690
   blighted_sludge_spewer: 174210
   putrid_butcher: 169927
+  disgusting_refuse: 163089
   rancid_gasbag: 163086
   dokigg_the_brutalizer: 167538
   nekthara_the_mangler: 162744

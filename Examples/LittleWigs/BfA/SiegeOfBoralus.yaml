@@ -1,15 +1,15 @@
 module_name: Siege of Boralus Trash
 npcs:
-  cannoneer: 138465
+  waveshaper: 144071
+  raider: 129369
+  shredder: 129371
   commander: 128969
+  curseblade: 135258
   spotter: 138255
+  cannoneer: 138465
   demolisher: 135245
+  buccaneer: 129366
   pillager: 135241
   tempest: 129367
-  wavetender: 141284
-  halberd: 141283
-  raider: 129369
-  vanguard: 138019
-  marksman: 141285
-  buccaneer: 129366
+  cutthroat: 137511
   invader: 137516

@@ -1,19 +1,17 @@
 module_name: The MOTHERLODE!! Trash
 npcs:
-  tester: 136934
-  assassin: 134232
-  jockey: 130488
-  earthshaper: 130661
+  refreshment_vendor: 136470
+  mech_jockey: 130488
+  mechanized_peacekeeper: 136139
+  addled_thug: 130435
+  hired_assassin: 134232
+  azerite_extractor: 136643
+  venture_co_earthshaper: 130661
+  wanton_sapper: 130653
   stonefury: 130635
-  assistant: 133345
-  technician: 133593
-  mastermind: 133430
-  alchemist: 133432
-  sapper: 130653
-  vendor: 136470
-  extractor: 136643
-  thug: 130435
-  specialist: 137029
-  taskmaster: 134012
-  warmachine: 133463
-  peacekeeper: 130485
+  taskmaster_askari: 134012
+  weapons_tester: 136934
+  venture_co_mastermind: 133430
+  venture_co_alchemist: 133432
+  venture_co_war_machine: 133463
+  ordnance_specialist: 137029
