@@ -4,7 +4,6 @@ use isahc::{
     HttpClient,
     config::{Configurable, RedirectPolicy},
 };
-use once_cell::sync::Lazy;
 use onig::Regex;
 use rayon::prelude::*;
 use select::{
@@ -17,6 +16,7 @@ use std::{
     fs::File,
     io::{BufReader, Write},
     path::{Path, PathBuf},
+    sync::LazyLock,
     thread,
     time::Duration,
 };
@@ -27,7 +27,7 @@ use error::ProcessingError;
 mod utils;
 
 const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
-static USER_AGENT: Lazy<Cow<'static, str>> = Lazy::new(|| {
+static USER_AGENT: LazyLock<Cow<'static, str>> = LazyLock::new(|| {
     env::var("USER_AGENT")
         .map(Cow::from)
         .unwrap_or_else(|_| Cow::from(DEFAULT_USER_AGENT))
@@ -182,7 +182,7 @@ impl Localizer {
     }
 
     fn process_languages(self) {
-        static TITLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s+<.+?>$"#).unwrap());
+        static TITLE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\s+<.+?>$"#).unwrap());
 
         let total = self.data.iter().fold(0, |acc, el| acc + el.ids_map.len());
 

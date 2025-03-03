@@ -1,12 +1,11 @@
-use once_cell::sync::Lazy;
-use onig::{Regex, Replacer};
-
 use crate::Map;
+use onig::{Regex, Replacer};
 use std::{
     borrow::Cow,
     fs::{self, File},
     io::{self, BufRead, BufReader, BufWriter, ErrorKind, Read, Write},
     path::{Path, PathBuf},
+    sync::LazyLock,
     time::SystemTime,
 };
 
@@ -22,8 +21,8 @@ enum State {
     Done,
 }
 
-static LOCALE_ASSIGNMENT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"\s*(--)?\s*L\.(\w*)\s*=\s*"(.*?)(?<!\\)"(.*)"#).unwrap());
+static LOCALE_ASSIGNMENT_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"\s*(--)?\s*L\.(\w*)\s*=\s*"(.*?)(?<!\\)"(.*)"#).unwrap());
 
 fn offset<'a>(haystack: &'a str, needle: &'a str) -> usize {
     needle.as_ptr() as usize - haystack.as_ptr() as usize
