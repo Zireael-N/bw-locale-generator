@@ -143,8 +143,7 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
 }
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
-    serde_yaml::to_writer(&mut output, parse_result)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    serde_yaml::to_writer(&mut output, parse_result).map_err(io::Error::other)?;
     output.flush()
 }
 

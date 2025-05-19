@@ -140,8 +140,7 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
 
 fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
     let mut stdout = io::stdout().lock();
-    serde_yaml::to_writer(&mut stdout, &parse_result)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    serde_yaml::to_writer(&mut stdout, &parse_result).map_err(io::Error::other)?;
     stdout.flush()?;
     drop(stdout);
 
