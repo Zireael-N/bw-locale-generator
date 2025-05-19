@@ -26,7 +26,7 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
+const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
 static USER_AGENT: LazyLock<Cow<'static, str>> = LazyLock::new(|| {
     env::var("USER_AGENT")
         .map(Cow::from)
@@ -67,9 +67,12 @@ impl Localizer {
                     (
                         "es",
                         "esES",
-                        format!(
-                            "L = BigWigs:NewBossLocale(\"{module_name}\", \"esES\") or BigWigs:NewBossLocale(\"{module_name}\", \"esMX\")"
-                        ),
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"esES\")"),
+                    ),
+                    (
+                        "mx",
+                        "esMX",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"esMX\")"),
                     ),
                     (
                         "fr",
@@ -100,6 +103,11 @@ impl Localizer {
                         "cn",
                         "zhCN",
                         format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"zhCN\")"),
+                    ),
+                    (
+                        "tw",
+                        "zhTW",
+                        format!("L = BigWigs:NewBossLocale(\"{module_name}\", \"zhTW\")"),
                     ),
                 ],
                 &ids_map,
@@ -260,6 +268,16 @@ impl Localizer {
                                         Document::from_read(response.body_mut()).map_err(From::from)
                                     })
                                     .and_then(|document| {
+                                        // if let Some(alternative_names) = document.find(Class("heading-size-3")).next() {
+                                        //     if let Some(list) = alternative_names.next() {
+                                        //         if list.is(Name("ul")) {
+                                        //             if let Some(first) = list.first_child() {
+                                        //                 return Ok(first.text());
+                                        //             }
+                                        //         }
+                                        //     }
+                                        // }
+
                                         document
                                             .find(Class("heading-size-1"))
                                             .next()

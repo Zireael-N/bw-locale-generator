@@ -25,7 +25,7 @@ static LOCALE_ASSIGNMENT_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"\s*(--)?\s*L\.(\w*)\s*=\s*"(.*?)(?<!\\)"(.*)"#).unwrap());
 
 fn offset<'a>(haystack: &'a str, needle: &'a str) -> usize {
-    needle.as_ptr() as usize - haystack.as_ptr() as usize
+    needle.as_ptr().addr() - haystack.as_ptr().addr()
 }
 
 pub(crate) fn replace_owning<R: Replacer>(
