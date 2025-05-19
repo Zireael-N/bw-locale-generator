@@ -77,15 +77,15 @@ jobs:
         mkdir -p "$OUTPUT_DIR"
 
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          cp "target/${{ matrix.target }}/release/generate_yaml_from_dir.exe" "$OUTPUT_DIR/"
-          cp "target/${{ matrix.target }}/release/generate_yaml_from_one.exe" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_toml_from_dir.exe" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_toml_from_one.exe" "$OUTPUT_DIR/"
           cp "target/${{ matrix.target }}/release/localize_npc_names.exe" "$OUTPUT_DIR/"
           ASSET="$OUTPUT_DIR.zip"
           7z a "$ASSET" "$OUTPUT_DIR"
           echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
         else
-          cp "target/${{ matrix.target }}/release/generate_yaml_from_dir" "$OUTPUT_DIR/"
-          cp "target/${{ matrix.target }}/release/generate_yaml_from_one" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_toml_from_dir" "$OUTPUT_DIR/"
+          cp "target/${{ matrix.target }}/release/generate_toml_from_one" "$OUTPUT_DIR/"
           cp "target/${{ matrix.target }}/release/localize_npc_names" "$OUTPUT_DIR/"
           ASSET="$OUTPUT_DIR.tar.gz"
           tar czf "$ASSET" "$OUTPUT_DIR"

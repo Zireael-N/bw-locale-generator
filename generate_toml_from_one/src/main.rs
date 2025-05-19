@@ -140,7 +140,8 @@ fn parse(mut file: BufReader<File>) -> Result<ParseResult, io::Error> {
 
 fn pretty_print(parse_result: ParseResult) -> Result<(), io::Error> {
     let mut stdout = io::stdout().lock();
-    serde_yaml::to_writer(&mut stdout, &parse_result).map_err(io::Error::other)?;
+    let serialized = toml::to_string_pretty(&parse_result).map_err(io::Error::other)?;
+    stdout.write_all(serialized.as_bytes())?;
     stdout.flush()?;
     drop(stdout);
 

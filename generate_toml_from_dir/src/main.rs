@@ -143,7 +143,8 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
 }
 
 fn write_to_file(parse_result: &ParseResult, mut output: BufWriter<File>) -> Result<(), io::Error> {
-    serde_yaml::to_writer(&mut output, parse_result).map_err(io::Error::other)?;
+    let serialized = toml::to_string_pretty(parse_result).map_err(io::Error::other)?;
+    output.write_all(serialized.as_bytes())?;
     output.flush()
 }
 
@@ -250,7 +251,7 @@ fn main() -> Result<(), Error> {
                             )
                         })
                     })
-                    .map(|path| output_dir.join(path).with_extension("yaml"))
+                    .map(|path| output_dir.join(path).with_extension("toml"))
             }?;
 
             if let Some(parent) = output_path.parent() {

@@ -1,15 +1,17 @@
 [package]
-name = "generate_yaml_from_one"
-version = "0.1.14"
+name = "generate_toml_from_dir"
+version = "0.1.15"
 authors = ["Velithris"]
 edition = "2024"
 
 [dependencies]
 indexmap = { version = "2", features = ["serde"] }
 once_cell = "1"
+rayon = "1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
+toml = "0.8"
+walkdir = "2"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.jemallocator]
 version = "0.5"
