@@ -1,0 +1,17 @@
+module_name = "The Dawnbreaker Trash"
+
+[npcs]
+arathi_lamplighter = 223660
+nightfall_shadowmage = 213892
+nightfall_ritualist = 214761
+nightfall_commander = 214762
+arathi_bomb = 224325
+ascendant_viscoxria = 211261
+deathscreamer_ikentak = 211263
+ixkreten_the_unbreakable = 211262
+sureki_militant = 213932
+nightfall_tactician = 213934
+nightfall_darkcaster = 213893
+nightfall_shadowalker = 213895
+manifested_shadow = 211341
+nightfall_dark_architect = 213885

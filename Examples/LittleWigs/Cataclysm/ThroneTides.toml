@@ -1,0 +1,11 @@
+module_name = "Throne of the Tides Trash"
+
+[npcs]
+nazjar_oracle = 41096
+vicious_snap_dragon = 212681
+nazjar_sentinel = 40577
+nazjar_ravager = 212673
+nazjar_tempest_witch = 40634
+faceless_seer = 212775
+faceless_watcher = 40936
+tainted_sentry = 40925

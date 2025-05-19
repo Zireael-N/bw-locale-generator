@@ -1,0 +1,21 @@
+module_name = "Nighthold Trash"
+
+[npcs]
+torm = 115914
+fulminant = 111081
+pulsauron = 111072
+sludgerax = 112255
+karzun = 116008
+guardian = 112712
+battle_magus = 112671
+chronowraith = 113307
+protector = 112665
+jarin = 112803
+defender = 112638
+weaver = 112973
+archmage = 112595
+manasaber = 111295
+naturalist = 112678
+infernal = 111210
+chaosmage = 113012
+watcher = 113043

@@ -1,0 +1,32 @@
+module_name = "Operation: Mechagon Trash"
+
+[npcs]
+scrapbone_shaman = 150146
+scrapbone_bully = 150160
+scrapbone_grinder = 150143
+saurolisk_bonenipper = 150154
+malfunctioning_scrapbot = 152009
+heavy_scrapbot = 150276
+pistonhead_blaster = 150250
+pistonhead_scrapper = 150249
+weaponized_crawler = 150253
+slime_elemental = 150165
+toxic_monstrosity = 154744
+toxic_lurker = 150169
+pistonhead_mechanic = 150251
+scraphound = 150254
+mechagon_renormalizer = 150297
+mechagon_cavalry = 150292
+mechagon_trooper = 155094
+anodized_coilbearer = 155090
+bomb_tonk = 151657
+rocket_tonk = 151659
+waste_processing_unit = 144293
+metal_gunk = 236033
+junkyard_d0g = 151773
+mechagon_tinkerer = 144294
+anti_personnel_squirrel = 151613
+defense_bot_mk_iii = 144298
+blastatron_x80 = 151476
+mechagon_mechanic = 144295
+workshop_defender = 144299

@@ -1,0 +1,14 @@
+module_name = "The Azure Vault Trash"
+
+[npcs]
+shrieking_whelp = 188100
+conjured_lasher = 196102
+arcane_tender = 196115
+arcane_elemental = 186741
+unstable_curator = 187154
+rune_seal_keeper = 187155
+crystal_fury = 196116
+crystal_thrasher = 196117
+arcane_construct = 186740
+scalebane_lieutenant = 191739
+drakonid_breaker = 187240

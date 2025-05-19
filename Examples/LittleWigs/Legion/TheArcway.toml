@@ -1,0 +1,8 @@
+module_name = "The Arcway Trash"
+
+[npcs]
+anomaly = 98756
+shade = 106059
+wraith = 105952
+blade = 98770
+chaosbringer = 105617

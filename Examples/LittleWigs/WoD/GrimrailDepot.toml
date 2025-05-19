@@ -1,0 +1,12 @@
+module_name = "Grimrail Depot Trash"
+
+[npcs]
+grimrail_technician = 81236
+grimrail_overseer = 164168
+gromkar_gunner = 80937
+gromkar_cinderseer = 88163
+gromkar_boomer = 80935
+gromkar_hulk = 80938
+gromkar_far_seer = 82579
+gromkar_captain = 82597
+grimrail_scout = 82590

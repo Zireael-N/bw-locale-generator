@@ -1,0 +1,24 @@
+module_name = "Brackenhide Hollow Trash"
+
+[npcs]
+decaying_cauldron = 194675
+captive_tuskarr = 186766
+decay_speaker = 186191
+claw_fighter = 185508
+bonebolt_hunter = 185534
+bracken_warscourge = 185529
+brackenhide_shaper = 186220
+fishface = 191926
+decayed_elder = 189531
+wilted_oak = 186229
+fetid_rotsinger = 186226
+decay_totem = 190426
+monstrous_decay = 186227
+infected_bear = 189318
+stinkbreath = 187033
+rageclaw = 187192
+rotbow_ranger = 186208
+skulking_gutstabber = 186242
+fleshripper_vulture = 186246
+filth_caller = 185656
+vile_rothexer = 194487

@@ -1,0 +1,18 @@
+module_name = "Neltharus Trash"
+
+[npcs]
+burning_chain = 189342
+qalashi_warden = 193293
+qalashi_hunter = 189227
+overseer_lahar = 189235
+qalashi_trainee = 189266
+qalashi_bonetender = 189265
+qalashi_irontorch = 189464
+qalashi_bonesplitter = 189467
+qalashi_lavabearer = 189472
+irontorch_commander = 189466
+qalashi_blacksmith = 189471
+forgewrought_monstrosity = 194816
+qalashi_plunderer = 192786
+qalashi_thaumaturge = 192788
+apex_blazewing = 193291

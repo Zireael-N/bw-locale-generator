@@ -1,0 +1,11 @@
+module_name = "Aberrus, the Shadowed Crucible Trash"
+
+[npcs]
+edgelord = 198873
+naturalist = 201746
+siegemaster = 198874
+arcanist = 201736
+chemist = 205656
+fluid = 203939
+slime = 205651
+whisper = 203806

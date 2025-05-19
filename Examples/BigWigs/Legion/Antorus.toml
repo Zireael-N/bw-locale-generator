@@ -1,0 +1,12 @@
+module_name = "Antorus Trash"
+
+[npcs]
+felguard = 123478
+flameweaver = 127233
+ravager = 126764
+deconix = 127723
+clobex = 127732
+stalker = 125549
+tarneth = 123533
+priestess = 128060
+aedis = 123680

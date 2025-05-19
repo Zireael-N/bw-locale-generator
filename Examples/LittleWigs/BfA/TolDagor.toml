@@ -1,0 +1,10 @@
+module_name = "Tol Dagor Trash"
+
+[npcs]
+vicejaw = 127482
+thug = 130025
+seaspeaker = 130026
+flamecaster = 127488
+officer = 127486
+marine = 130027
+priest = 130028

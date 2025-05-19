@@ -1,0 +1,14 @@
+module_name = "Cathedral of Eternal Night Trash"
+
+[npcs]
+dulzak = 118704
+wrathguard = 118690
+felguard = 119952
+soulmender = 119923
+botanist = 118703
+temptress = 118714
+orbcaster = 118713
+waglur = 120713
+scavenger = 118719
+gazerax = 118723
+vilebark = 121569

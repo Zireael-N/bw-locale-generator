@@ -1,0 +1,17 @@
+module_name = "Priory of the Sacred Flame Trash"
+
+[npcs]
+guard_captain_suleyman = 212826
+forge_master_damian = 212831
+high_priest_aemya = 212827
+arathi_knight = 206696
+arathi_footman = 206705
+fervent_sharpshooter = 206694
+war_lynx = 206699
+devout_priest = 206697
+fanatical_conjuror = 206698
+lightspawn = 206710
+ardent_paladin = 206704
+zealous_templar = 207949
+risen_mage = 221760
+sir_braunpyke = 217658

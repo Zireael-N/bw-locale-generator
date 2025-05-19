@@ -1,0 +1,21 @@
+module_name = "The Necrotic Wake Trash"
+
+[npcs]
+corpse_harvester = 166302
+stitched_vanguard = 163121
+zolramus_gatekeeper = 165137
+zolramus_necromancer = 163618
+brittlebone_mage = 163126
+zolramus_bonecarver = 163619
+skeletal_marauder = 165919
+zolramus_bonemender = 165222
+zolramus_sorcerer = 163128
+narzudah = 165824
+skeletal_monstrosity = 165197
+corpse_collector = 173016
+kyrian_stitchwerk = 172981
+flesh_crafter = 165872
+loyal_creation = 165911
+separation_assistant = 167731
+goregrind = 163621
+rotspew = 163620

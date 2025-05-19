@@ -1,0 +1,16 @@
+module_name = "Ara-Kara, City of Echoes Trash"
+
+[npcs]
+engorged_crawler = 214840
+trilling_attendant = 216293
+ixin = 217531
+nakt = 218324
+atik = 217533
+hulking_bloodguard = 216338
+sentry_stagshell = 216340
+bloodstained_assistant = 216333
+bloodstained_webmage = 223253
+blood_overseer = 216364
+reinforced_drone = 216363
+nerubian_hauler = 217039
+winged_carrier = 216365

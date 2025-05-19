@@ -1,0 +1,15 @@
+module_name = "Uldaman: Legacy of Tyr Trash"
+
+[npcs]
+hulking_berserker = 184020
+stonevault_geomancer = 184022
+vicious_basilisk = 184023
+refti_custodian = 184319
+earthen_custodian = 184130
+earthen_weaver = 186420
+earthen_warder = 184132
+runic_protector = 184107
+cavern_seeker = 184301
+ebonstone_golem = 184300
+earthen_guardian = 184131
+infinite_agent = 184335

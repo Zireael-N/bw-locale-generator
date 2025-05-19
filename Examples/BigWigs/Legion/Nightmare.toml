@@ -1,0 +1,6 @@
+module_name = "Emerald Nightmare Trash"
+
+[npcs]
+gelatinizedDecay = 111004
+befouler = 111354
+shaman = 112153

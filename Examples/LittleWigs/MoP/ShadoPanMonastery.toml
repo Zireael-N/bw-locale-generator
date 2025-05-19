@@ -1,0 +1,5 @@
+module_name = "Shado-Pan Monastery Trash"
+
+[npcs]
+destroying_sha = 56765
+slain_shado_pan_defender = 58794

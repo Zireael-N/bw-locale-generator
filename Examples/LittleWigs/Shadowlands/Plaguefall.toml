@@ -1,0 +1,21 @@
+module_name = "Plaguefall Trash"
+
+[npcs]
+plagueborer = 168580
+fen_hatchling = 168579
+fen_hornet = 168361
+decaying_flesh_giant = 163882
+plagueroc = 168153
+plaguebelcher = 168396
+rotting_slimeclaw = 163892
+blighted_spinebreaker = 163894
+plaguebinder = 168627
+congealed_slime = 164707
+slime_tentacle = 168022
+defender_of_many_eyes = 163862
+venomous_sniper = 167493
+brood_ambusher = 164737
+ickor_bileflesh = 169861
+fungalmancer = 168578
+pestilent_harvester = 168574
+fungi_stormer = 168572

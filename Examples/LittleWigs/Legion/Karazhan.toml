@@ -1,0 +1,13 @@
+module_name = "Karazhan Trash"
+
+[npcs]
+barnes = 114339
+ghostly_philanthropist = 114542
+skeletal_usher = 114544
+spectral_attendant = 114632
+spectral_valet = 114633
+phantom_guardsman = 114636
+wholesome_hostess = 114796
+reformed_maiden = 114783
+spectral_charger = 114804
+king = 115388

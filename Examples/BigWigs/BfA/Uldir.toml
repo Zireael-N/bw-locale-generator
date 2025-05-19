@@ -1,0 +1,6 @@
+module_name = "Uldir Trash"
+
+[npcs]
+watcher = 136493
+ascendant = 136499
+dominator = 142802

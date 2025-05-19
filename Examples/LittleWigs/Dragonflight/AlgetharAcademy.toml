@@ -1,0 +1,14 @@
+module_name = "Algeth'ar Academy Trash"
+
+[npcs]
+corrupted_manafiend = 196045
+spellbound_battleaxe = 196577
+spellbound_scepter = 196576
+arcane_ravager = 196671
+unruly_textbook = 196044
+guardian_sentry = 192680
+alpha_eagle = 192333
+vile_lasher = 197219
+algethar_echoknight = 196200
+spectral_invoker = 196202
+ethereal_restorer = 196203
