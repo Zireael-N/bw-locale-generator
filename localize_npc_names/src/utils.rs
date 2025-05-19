@@ -78,7 +78,7 @@ pub(crate) fn discard_existing(
                     let name = caps.at(2).unwrap();
 
                     if !is_comment {
-                        let _ = map.remove(name);
+                        let _ = map.shift_remove(name);
                     }
                 }
             }
@@ -140,7 +140,7 @@ fn replace<'a>(
                 } else if let Some(caps) = LOCALE_ASSIGNMENT_REGEX.captures(line) {
                     let name = caps.at(2).unwrap();
 
-                    if let Some((translation, is_valid)) = values.remove(name) {
+                    if let Some((translation, is_valid)) = values.shift_remove(name) {
                         let is_comment = caps.at(1).is_some();
                         let leftover = caps.at(4).unwrap();
                         if is_valid && (is_comment || caps.at(3).unwrap() != translation) {

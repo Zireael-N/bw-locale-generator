@@ -122,7 +122,7 @@ fn parse(mut input: BufReader<File>) -> Result<ParseResult, io::Error> {
     let mut missing_vars = Vec::with_capacity(4);
 
     for (value, variable) in vars_map.into_iter() {
-        if let Some(id) = ids_map.remove(&value) {
+        if let Some(id) = ids_map.shift_remove(&value) {
             var_to_id_map.insert(variable, id);
         } else {
             missing_vars.push((variable, value));

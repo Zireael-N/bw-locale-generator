@@ -10,7 +10,7 @@ static-curl = ["isahc/static-curl"]
 
 [dependencies]
 crossbeam-channel = "0.5"
-indexmap = { version = "1", features = ["serde-1"] }
+indexmap = { version = "2", features = ["serde"] }
 isahc = { version = "1", default-features = false, features = ["http2"] }
 onig = { version = "6", default-features = false }
 rayon = "1"
