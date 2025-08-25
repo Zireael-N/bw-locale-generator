@@ -181,11 +181,6 @@ fn replace<'a>(
             scratch.extend_from_slice(header.as_bytes());
             scratch.extend_from_slice(LINE_ENDING);
 
-            if is_empty {
-                scratch.extend_from_slice(b"if not L then return end");
-                scratch.extend_from_slice(LINE_ENDING);
-            }
-
             scratch.extend_from_slice(b"if L then");
             scratch.extend_from_slice(LINE_ENDING);
 
@@ -267,12 +262,6 @@ pub(crate) fn write_to_dir(
                     .map_err(|e| (to_path.clone(), e))?;
                 to_file
                     .write_all(header.as_bytes())
-                    .map_err(|e| (to_path.clone(), e))?;
-                to_file
-                    .write_all(LINE_ENDING)
-                    .map_err(|e| (to_path.clone(), e))?;
-                to_file
-                    .write_all(b"if not L then return end")
                     .map_err(|e| (to_path.clone(), e))?;
                 to_file
                     .write_all(LINE_ENDING)
