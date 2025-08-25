@@ -3,6 +3,7 @@ module_name = "Operation: Floodgate Trash"
 [npcs]
 shreddinator_3000 = 230740
 mechadrone_sniper = 229069
+loaderbot = 231014
 darkfuse_hyena = 229252
 darkfuse_demolitionist = 229212
 darkfuse_inspector = 231385
@@ -13,6 +14,5 @@ venture_co_architect = 229251
 venture_co_diver = 231496
 disturbed_kelp = 231223
 bomb_pile = 234373
-bubbles = 231197
 venture_co_electrician = 231312
 darkfuse_jumpstarter = 231325

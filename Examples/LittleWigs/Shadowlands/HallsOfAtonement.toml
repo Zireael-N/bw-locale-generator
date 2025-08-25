@@ -1,13 +1,12 @@
 module_name = "Halls of Atonement Trash"
 
 [npcs]
-houndmaster = 164562
-gargon = 164563
-loyalstoneborn = 174175
-darkblade = 167615
-obliterator = 165414
-collector = 165529
-shard = 164557
-reaver = 167612
-slasher = 167607
-sigar = 167876
+depraved_houndmaster = 164562
+vicious_gargon = 164563
+depraved_obliterator = 165414
+depraved_collector = 165529
+stoneborn_slasher = 167607
+shard_of_halkias = 164557
+stoneborn_reaver = 167612
+stoneborn_eviscerator = 167611
+inquisitor_sigar = 167876

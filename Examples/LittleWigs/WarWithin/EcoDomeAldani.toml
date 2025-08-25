@@ -1,0 +1,16 @@
+module_name = "Eco-Dome Al'dani Trash"
+
+[npcs]
+terrified_broker = 244927
+arcane_siphon = 247244
+overgorged_mite = 242209
+voracious_gorger = 234883
+ravenous_destroyer = 236995
+overcharged_sentinel = 242631
+wastelander_farstalker = 234962
+tamed_ruinstalker = 234960
+wastelander_ritualist = 234957
+wastelander_pactspeaker = 234955
+karesh_elemental = 235151
+burrowing_creeper = 245092
+wastes_creeper = 234918

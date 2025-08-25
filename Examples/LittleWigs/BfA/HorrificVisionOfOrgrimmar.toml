@@ -2,17 +2,25 @@ module_name = "Horrific Vision of Orgrimmar Trash"
 
 [npcs]
 voidbound_shaman = 153097
-crawling_corruption = 152704
+endless_hunger_totem = 153141
+crawling_corruption = 157604
+void_globule = 157603
+voidbound_ravager = 153065
 voidbound_honor_guard = 156406
 voidbound_shieldbearer = 156146
+naros = 158565
 decimator_shiqvoth = 153943
 voidbound_berserker = 152699
+bwemba = 161140
 greater_void_elemental = 153130
+faceless_willbreaker = 157608
 annihilator_lakhal = 153942
-kthir_dominator = 153401
+kthir_dominator = 157610
 kthir_mindcarver = 157609
 coagulated_horror = 156653
 voidcrazed_hulk = 156143
 misha = 155656
+aqir_scarab = 157904
 aqir_bonecrusher = 153531
+aqir_mindhunter = 153532
 aqir_venomweaver = 156089

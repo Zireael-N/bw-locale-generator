@@ -2,6 +2,7 @@ module_name = "The Dawnbreaker Trash"
 
 [npcs]
 arathi_lamplighter = 223660
+nightfall_curseblade = 213894
 nightfall_shadowmage = 213892
 nightfall_ritualist = 214761
 nightfall_commander = 214762

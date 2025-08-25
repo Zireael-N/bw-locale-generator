@@ -2,6 +2,7 @@ module_name = "Cinderbrew Meadery Trash"
 
 [npcs]
 venture_co_pyromaniac = 218671
+venture_co_patron = 214668
 hired_muscle = 210269
 tasting_room_attendant = 214920
 chef_chewie = 214697
@@ -14,4 +15,3 @@ taste_tester = 220060
 bee_wrangler = 210264
 venture_co_honey_harvester = 220946
 royal_jelly_purveyor = 220141
-yes_man = 219588
