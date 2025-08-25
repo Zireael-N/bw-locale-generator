@@ -1,6 +1,6 @@
 [package]
 name = "localize_npc_names"
-version = "0.1.15"
+version = "0.1.16"
 authors = ["Velithris"]
 edition = "2024"
 
@@ -17,7 +17,7 @@ rayon = "1"
 select = "0.6"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
-toml = { version = "0.8", default-features = false, features = ["parse"] }
+toml = { version = "0.9", default-features = false, features = ["parse", "serde"] }
 
 [target.'cfg(windows)'.dependencies.winapi-util]
 version = "0.1"

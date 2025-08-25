@@ -26,7 +26,7 @@ pub use error::Error;
 use error::ProcessingError;
 mod utils;
 
-const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
+const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
 static USER_AGENT: LazyLock<Cow<'static, str>> = LazyLock::new(|| {
     env::var("USER_AGENT")
         .map(Cow::from)
