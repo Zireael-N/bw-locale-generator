@@ -1,9 +1,14 @@
 name: ci
+
+permissions:
+  contents: read
+
 on:
   pull_request:
   push:
     branches:
     - master
+
 jobs:
   code-check:
     name: code-check
@@ -14,25 +19,21 @@ jobs:
         include:
         - build: linux
           os: ubuntu-latest
-          target: x86_64-unknown-linux-gnu
         - build: macos
           os: macos-latest
-          target: x86_64-apple-darwin
         - build: win-msvc
           os: windows-latest
-          target: x86_64-pc-windows-msvc
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout the repository
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      with:
+        persist-credentials: false
 
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
       with:
         toolchain: stable
-        profile: minimal
-        override: true
-        target: ${{ matrix.target }}
 
     - name: Run cargo check
       run: cargo check
@@ -42,16 +43,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout the repository
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      with:
+        persist-credentials: false
 
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
       with:
         toolchain: 1.87.0
-        profile: default
-        override: true
-        target: x86_64-unknown-linux-gnu
+        components: rustfmt, clippy
 
     - name: Check formatting
       run: cargo fmt --all -- --check

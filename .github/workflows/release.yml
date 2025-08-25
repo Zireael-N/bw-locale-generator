@@ -1,30 +1,28 @@
-# Based on https://github.com/BurntSushi/ripgrep/blob/ffd4c9ccba0ffc74270a8d3ae75f11a7ba7a1a64/.github/workflows/release.yml
-
 name: release
+
+permissions:
+  contents: write
+
 on:
   push:
     tags:
     - 'v[0-9]+.[0-9]+.[0-9]+'
+
 jobs:
   create-release:
     name: create-release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
-      version: ${{ env.VERSION }}
     steps:
-      - name: Get the release version from the tag
-        run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/}" | tee -a $GITHUB_ENV
-
-      - name: Create GitHub release
-        id: release
-        uses: actions/create-release@v1
+      - name: Create a GitHub release
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+        run: |
+          gh release create \
+            ${{ github.ref_name }} \
+            --repo ${{ github.event.repository.full_name }} \
+            --verify-tag \
+            --generate-notes
 
   build-release:
     name: build-release
@@ -56,24 +54,24 @@ jobs:
           target: i686-pc-windows-msvc
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout the repository
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      with:
+        persist-credentials: false
 
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
       with:
         toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
-        target: ${{ matrix.target }}
+        targets: ${{ matrix.target }}
 
-    - name: Build release binaries
+    - name: Build the release binaries
       run: cargo build --verbose --release --target ${{ matrix.target }}
 
-    - name: Build archive
+    - name: Build an archive
       shell: bash
       run: |
-        OUTPUT_DIR="bw_locale_generator-${{ needs.create-release.outputs.version }}-${{ matrix.target }}"
+        OUTPUT_DIR="bw_locale_generator-${{ github.ref_name }}-${{ matrix.target }}"
         mkdir -p "$OUTPUT_DIR"
 
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
@@ -92,12 +90,12 @@ jobs:
           echo "ASSET=$ASSET" | tee -a $GITHUB_ENV
         fi
 
-    - name: Upload release archive
-      uses: actions/upload-release-asset@v1.0.1
+    - name: Upload the archive
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ${{ env.ASSET }}
-        asset_name: ${{ env.ASSET }}
-        asset_content_type: application/octet-stream
+      run: |
+        gh release upload \
+          ${{ github.ref_name }} \
+          "${{ env.ASSET }}" \
+          --repo ${{ github.event.repository.full_name }}
